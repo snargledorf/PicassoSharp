@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicassoSharp.Android", "MonoDroid\PicassoSharp\PicassoSharp.Android.csproj", "{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{4F4B6C37-D91B-4208-9CE3-C9774FFE40BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicassoSharp.iOS", "MonoTouch\PicassoSharp\PicassoSharp.iOS.csproj", "{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Android", "Android", "{C1EBD1E4-B81B-45B9-A375-3B8928C959D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{5E45066B-C4DF-4453-BB20-F4FA00D5B28F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "iOS", "iOS", "{6FBF8EF7-4F20-4E9F-AF14-1726BBC28F25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{B8A4957C-ACA0-4BB7-AEDE-FAC5235BCA26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicExample", "MonoDroid\Examples\BasicExample\BasicExample.csproj", "{BFE2C502-C4C0-4C72-8779-87922B7B0655}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{d8a170ee-4fb6-4d2d-ba05-d1c9bedd4a0d}*SharedItemsImports = 4
+		Shared\Shared.projitems*{4f4b6c37-d91b-4208-9ce3-c9774ffe40be}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D} = {C1EBD1E4-B81B-45B9-A375-3B8928C959D0}
+		{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E} = {6FBF8EF7-4F20-4E9F-AF14-1726BBC28F25}
+		{5E45066B-C4DF-4453-BB20-F4FA00D5B28F} = {C1EBD1E4-B81B-45B9-A375-3B8928C959D0}
+		{B8A4957C-ACA0-4BB7-AEDE-FAC5235BCA26} = {6FBF8EF7-4F20-4E9F-AF14-1726BBC28F25}
+		{BFE2C502-C4C0-4C72-8779-87922B7B0655} = {5E45066B-C4DF-4453-BB20-F4FA00D5B28F}
+	EndGlobalSection
+EndGlobal
