@@ -1,12 +1,30 @@
 using System;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Java.Lang.Ref;
+using WeakReference = Java.Lang.Ref.WeakReference;
 
 namespace PicassoSharp
 {
 	public abstract class Action : Java.Lang.Object
     {
-		private readonly WeakReference<Object> m_Target;
+        internal class RequestWeakReference<T> : WeakReference where T : Java.Lang.Object
+	    {
+	        private readonly Action m_Action;
+
+	        public RequestWeakReference(Action action, T referent, ReferenceQueue referenceQueue) 
+                : base(referent, referenceQueue)
+	        {
+	            m_Action = action;
+	        }
+
+            public Action Action
+            {
+                get { return m_Action; }
+            }
+	    }
+
+        private readonly RequestWeakReference<Java.Lang.Object> m_Target;
 		private readonly Picasso m_Picasso;
 		private readonly Request m_Data;
 		private readonly bool m_SkipCache;
@@ -14,16 +32,16 @@ namespace PicassoSharp
 		private readonly string m_Key;
 		private readonly Drawable m_ErrorDrawable;
 
-		public Action(
-			Picasso picasso, 
-			Object target, 
+	    protected Action(
+			Picasso picasso,
+            Java.Lang.Object target, 
 			Request data, 
 			bool skipCache, 
 			bool noFade,
 			string key, 
 			Drawable errorDrawable)
         {
-			m_Target = new WeakReference<object>(target);
+            m_Target = new RequestWeakReference<Java.Lang.Object>(this, target, picasso.ReferenceQueue);
 			m_Picasso = picasso;
 			m_Data = data;
 			m_Key = key;
@@ -40,13 +58,11 @@ namespace PicassoSharp
 			}
 		}
 
-		public Object Target
+        public Java.Lang.Object Target
         {
             get
 			{
-				Object target;
-				m_Target.TryGetTarget(out target);
-				return target;
+				return m_Target.Get();
             }
         }
 

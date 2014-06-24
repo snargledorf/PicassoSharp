@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using IOException = Java.IO.IOException;
 
 namespace PicassoSharp
 {

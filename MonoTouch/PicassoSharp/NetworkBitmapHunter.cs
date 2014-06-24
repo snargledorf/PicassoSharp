@@ -1,17 +1,18 @@
 using System.IO;
-using Android.Graphics;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
     internal class NetworkBitmapHunter : BitmapHunter
     {
-        internal NetworkBitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache,
+        internal NetworkBitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache,
             IDownloader downloader)
             : base(picasso, action, dispatcher, cache, downloader)
         {
         }
         
-        protected override Bitmap Decode(Request data)
+        protected override UIImage Decode(Request data)
         {
             LoadedFrom = LoadedFrom.Network;
 
@@ -33,18 +34,9 @@ namespace PicassoSharp
             }
         }
 
-        private Bitmap DecodeStream(Stream stream)
+        private UIImage DecodeStream(Stream stream)
         {
-            BitmapFactory.Options options = CreateBitmapOptions(Data);
-            bool calculateSize = RequiresInSampleSize(options);
-
-            byte[] bytes = Utils.ToByteArray(stream);
-            if (calculateSize)
-            {
-                BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
-                CalculateInSampleSize(Data.TargetWidth, Data.TargetHeight, options);
-            }
-            return BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
+            return UIImage.LoadFromData(NSData.FromStream(stream));
         }
     }
 }

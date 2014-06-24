@@ -23,8 +23,6 @@ namespace PicassoSharp
             target.SetImageDrawable(drawable);
         }
 
-        private float m_Density;
-        private LoadedFrom m_LoadedFrom;
         private Drawable m_Placeholder;
         private bool m_Animating;
         private long m_StartTimeMillis;
@@ -33,9 +31,6 @@ namespace PicassoSharp
         private PicassoDrawable(Context context, Bitmap bitmap, Drawable placeholder, LoadedFrom loadedFrom, bool noFade)
             : base(context.Resources, bitmap)
         {
-            m_Density = context.Resources.DisplayMetrics.Density;
-            m_LoadedFrom = loadedFrom;
-
             bool fade = loadedFrom != LoadedFrom.Memory && !noFade;
             if (fade)
             {

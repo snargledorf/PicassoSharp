@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Android.Graphics;
 
 namespace PicassoSharp
 {
-    public class LruCache : IDisposable, ICache
+    public class LruCache<T> : IDisposable, ICache<T> 
+        where T : IDisposable
 	{
 		private readonly object m_Sync = new object();
 
-        private Dictionary<String, Bitmap> m_Dictionary;
-        private LinkedList<String> m_List;
-        private Func<Bitmap, int> m_SlotSizeFunc;
-        private int m_SizeLimit;
-        private int m_EntryLimit;
+        private readonly Dictionary<String, T> m_Dictionary;
+        private readonly LinkedList<String> m_List;
+        private readonly Func<T, int> m_SlotSizeFunc;
+        private readonly int m_SizeLimit;
+        private readonly int m_EntryLimit;
         private int m_CurrentSize;
         private bool m_Disposed;
 
@@ -22,25 +21,25 @@ namespace PicassoSharp
         {
         }
 
-        public LruCache(int sizeLimit, Func<Bitmap, int> slotSizer) 
+        public LruCache(int sizeLimit, Func<T, int> slotSizer) 
             : this(0, sizeLimit, slotSizer)
         {
         }
 
-        public LruCache(int entryLimit, int sizeLimit, Func<Bitmap, int> slotSizer)
+        public LruCache(int entryLimit, int sizeLimit, Func<T, int> slotSizer)
         {
             if (sizeLimit != 0 && slotSizer == null)
                 throw new ArgumentNullException("If sizeLimit is set, the slotSizer must be provided");
 
             m_List = new LinkedList<String>();
-            m_Dictionary = new Dictionary<String, Bitmap>();
+            m_Dictionary = new Dictionary<String, T>();
 
             m_EntryLimit = entryLimit;
             m_SizeLimit = sizeLimit;
             m_SlotSizeFunc = slotSizer;
         }
 
-        protected virtual void OnEvict(Bitmap value)
+        protected virtual void OnEvict(T value)
         {
 			value.Dispose ();
         }
@@ -78,7 +77,7 @@ namespace PicassoSharp
 			}
         }
 
-        public Bitmap this[String key]
+        public T this[String key]
         {
             get
             {
@@ -91,28 +90,28 @@ namespace PicassoSharp
             }
         }
 
-        public Bitmap Get(String key) 
+        public T Get(String key) 
         {
 			lock (m_Sync)
 			{
-                Bitmap node;
+                T node;
 				if (m_Dictionary.TryGetValue(key, out node))
 				{
 					m_List.Remove(key);
 					m_List.AddFirst(key);
 					return node;
 				}
-                return null;
+                return default(T);
 			}
         }
 
-        public void Set(String key, Bitmap newValue) 
+        public void Set(String key, T newValue) 
         {
 			lock (m_Sync)
 			{
 				int valueSize = m_SizeLimit > 0 ? m_SlotSizeFunc(newValue) : 0;
 
-                Bitmap currentValue;
+                T currentValue;
 				if (m_Dictionary.TryGetValue(key, out currentValue))
 				{
 					// Is this a new value?

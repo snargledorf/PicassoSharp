@@ -9,8 +9,11 @@
     <Import_RootNamespace>PicassoSharp</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ICache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICallback.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IDownloader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoadedFrom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LruCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Request.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebClientDownloader.cs" />

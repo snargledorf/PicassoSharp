@@ -7,7 +7,7 @@ namespace PicassoSharp
 {
 	class FileBitmapHunter : BitmapHunter
 	{
-		internal FileBitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache cache, IDownloader downloader) 
+		internal FileBitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, IDownloader downloader) 
 			: base(picasso, action, dispatcher, cache, downloader)
 		{
 		}

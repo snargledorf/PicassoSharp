@@ -44,11 +44,8 @@
   <ItemGroup>
     <Compile Include="AndroidUtils.cs" />
     <Compile Include="Dispatcher.cs" />
-    <Compile Include="ICache.cs" />
     <Compile Include="ImageViewAction.cs" />
-    <Compile Include="ITarget.cs" />
-    <Compile Include="LoadedFrom.cs" />
-    <Compile Include="LruCache.cs" />
+    <Compile Include="Target.cs" />
     <Compile Include="PicassoDrawable.cs" />
     <Compile Include="PicassoExecutorService.cs" />
     <Compile Include="Action.cs" />

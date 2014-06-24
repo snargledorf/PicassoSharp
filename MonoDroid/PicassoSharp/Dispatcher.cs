@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Android;
 using Android.Content;
+using Android.Graphics;
 using Android.Net;
 using Android.OS;
 using Java.Util;
@@ -12,7 +12,7 @@ namespace PicassoSharp
 {
 	internal class Dispatcher
     {
-        private const long BatchDelay = 200;
+        private const int BatchDelay = 200;
         private const int AirplaneModeOn = 1;
         private const int AirplaneModeOff = 0;
 
@@ -30,7 +30,7 @@ namespace PicassoSharp
         private readonly DispatcherHandler m_Handler;
         private readonly Handler m_MainThreadHandler;
         private readonly Context m_Context;
-        private readonly ICache m_Cache;
+        private readonly ICache<Bitmap> m_Cache;
 	    private readonly IDownloader m_Downloader;
 	    private readonly IExecutorService m_Service;
         private readonly NetworkBroadcastReceiver m_Receiver;
@@ -39,7 +39,7 @@ namespace PicassoSharp
 	    private bool m_AirplaneMode;
 	    private NetworkInfo m_NetworkInfo;
 
-	    internal Dispatcher(Context context, Handler mainThreadHandler, IExecutorService service, ICache cache, IDownloader downloader)
+        internal Dispatcher(Context context, Handler mainThreadHandler, IExecutorService service, ICache<Bitmap> cache, IDownloader downloader)
         {
             m_DipatcherThread = new DispatcherThread();
 	        m_DipatcherThread.Start();
@@ -100,6 +100,7 @@ namespace PicassoSharp
                 hunter.Attach(action);
                 return;
             }
+
 	        if (m_Service.IsShutdown)
 	        {
                 return;
@@ -138,7 +139,7 @@ namespace PicassoSharp
 
 	    private void PerformBatchComplete()
 	    {
-	        ArrayList copy = new ArrayList(m_Batch);
+	        var copy = new ArrayList(m_Batch);
             m_Batch.Clear();
             m_MainThreadHandler.SendMessage(m_MainThreadHandler.ObtainMessage(Picasso.BatchComplete, copy));
 	    }
@@ -153,7 +154,7 @@ namespace PicassoSharp
         {
             m_NetworkInfo = info;
 
-            PicassoExecutorService service = m_Service as PicassoExecutorService;
+            var service = m_Service as PicassoExecutorService;
             if (service != null)
             {
                 service.AdujstThreadCount(info);
@@ -200,19 +201,19 @@ namespace PicassoSharp
 	            {
 	                case RequestSubmit:
 	                {
-	                    Action action = (Action) msg.Obj;
+	                    var action = (Action) msg.Obj;
 	                    m_Dispatcher.PerformSubmit(action);
 	                }
 	                    break;
 	                case RequestCancel:
 	                {
-	                    Action action = (Action) msg.Obj;
+	                    var action = (Action) msg.Obj;
 	                    m_Dispatcher.PerformCancel(action);
 	                }
 	                    break;
 	                case HunterComplete:
 	                {
-	                    BitmapHunter hunter = (BitmapHunter) msg.Obj;
+	                    var hunter = (BitmapHunter) msg.Obj;
 	                    m_Dispatcher.PerformComplete(hunter);
 	                }
 	                    break;
@@ -223,7 +224,7 @@ namespace PicassoSharp
 //        }
 	                case HunterDecodeFailed:
 	                {
-	                    BitmapHunter hunter = (BitmapHunter) msg.Obj;
+	                    var hunter = (BitmapHunter) msg.Obj;
 	                    m_Dispatcher.PerformError(hunter);
 	                }
 	                    break;
@@ -234,7 +235,7 @@ namespace PicassoSharp
 	                    break;
 	                case NetworkStateChange:
 	                {
-	                    NetworkInfo info = (NetworkInfo) msg.Obj;
+	                    var info = (NetworkInfo) msg.Obj;
 	                    m_Dispatcher.PerformNetworkStateChange(info);
 	                }
 	                    break;
@@ -277,7 +278,7 @@ namespace PicassoSharp
                 bool shouldScanState = m_Dispatcher.m_Service is PicassoExecutorService &&
                                        AndroidUtils.HasPermission(m_Dispatcher.m_Context,
                                            Manifest.Permission.AccessNetworkState);
-                IntentFilter intentFilter = new IntentFilter();
+                var intentFilter = new IntentFilter();
                 intentFilter.AddAction(Intent.ActionAirplaneModeChanged);
                 if (shouldScanState)
                 {
@@ -313,7 +314,7 @@ namespace PicassoSharp
                 }
                 else if (ConnectivityManager.ConnectivityAction.Equals(action))
                 {
-                    ConnectivityManager connectivityManager = (ConnectivityManager)m_Dispatcher.m_Context.GetSystemService(Context.ConnectivityService);
+                    var connectivityManager = (ConnectivityManager)m_Dispatcher.m_Context.GetSystemService(Context.ConnectivityService);
                     m_Dispatcher.DispatchNetworkStateChange(connectivityManager.ActiveNetworkInfo);
                 }
             }

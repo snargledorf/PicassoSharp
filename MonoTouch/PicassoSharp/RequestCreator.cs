@@ -1,7 +1,5 @@
 ﻿using System;
-using Android.Graphics;
-using Android.Graphics.Drawables;
-using Android.Widget;
+using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
@@ -13,8 +11,8 @@ namespace PicassoSharp
 		bool m_SkipCache = false;
 		bool m_NoFade = false;
 
-		Drawable m_PlaceholderDrawable;
-		Drawable m_ErrorDrawable;
+		UIImage m_PlaceholderImage;
+        UIImage m_ErrorImage;
 
 		internal RequestCreator(Picasso picasso, Uri uri)
         {
@@ -33,36 +31,36 @@ namespace PicassoSharp
 			return this;
 		}
 
-		public RequestCreator NoFade()
+//		public RequestCreator NoFade()
+//		{
+//			m_NoFade = true;
+//			return this;
+//		}
+
+//		public RequestCreator Fit(int width, int height)
+//		{
+//			m_RequestBuilder.Resize(width, height);
+//			return this;
+//		}
+
+		public RequestCreator PlaceholderImage(UIImage placeholderImage)
 		{
-			m_NoFade = true;
+			m_PlaceholderImage = placeholderImage;
 			return this;
 		}
 
-		public RequestCreator Fit(int width, int height)
+        public RequestCreator ErrorDrawable(UIImage errorImage)
 		{
-			m_RequestBuilder.Resize(width, height);
+			m_ErrorImage = errorImage;
 			return this;
 		}
 
-		public RequestCreator PlaceholderDrawable(Drawable placeholderDrawable)
-		{
-			m_PlaceholderDrawable = placeholderDrawable;
-			return this;
-		}
-
-        public RequestCreator ErrorDrawable(Drawable errorDrawable)
-		{
-			m_ErrorDrawable = errorDrawable;
-			return this;
-		}
-
-        public void Into(Target target)
+        public void Into(ITarget target)
         {
 			if (target == null)
 				throw new ArgumentNullException("target");
 
-            target.OnPrepareLoad(m_PlaceholderDrawable);
+            target.OnPrepareLoad(m_PlaceholderImage);
 
 			Request request = m_RequestBuilder.Build();
 			string key = Utils.CreateKey(request);
@@ -74,12 +72,12 @@ namespace PicassoSharp
                 m_SkipCache,
                 m_NoFade,
 				key,
-				m_ErrorDrawable);
+				m_ErrorImage);
 
 			if (!m_SkipCache)
             {
-                Bitmap cachedImage = m_Picasso.Cache.Get(key);
-				if (cachedImage != null && !cachedImage.IsRecycled)
+                UIImage cachedImage = m_Picasso.Cache.Get(key);
+				if (cachedImage != null)
                 {
                     m_Picasso.CancelRequest(target);
                     action.Complete(cachedImage, LoadedFrom.Memory);
@@ -90,35 +88,36 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
-	    public void Into(ImageView target)
+	    public void Into(UIImageView target)
 	    {
 	        Into(target, null);
 	    }
 
-        public void Into(ImageView target, ICallback callback)
+        public void Into(UIImageView target, ICallback callback)
         {
             if (target == null)
                 throw new ArgumentNullException("target");
 
-            PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
+            if (m_PlaceholderImage != null)
+                target.Image = m_PlaceholderImage;
 
             Request request = m_RequestBuilder.Build();
             string key = Utils.CreateKey(request);
 
-            var action = new ImageViewAction(
+            var action = new UIImageViewAction(
                 m_Picasso,
                 target,
                 request,
                 m_SkipCache,
                 m_NoFade,
                 key,
-                m_ErrorDrawable,
+                m_ErrorImage,
                 callback);
 
             if (!m_SkipCache)
             {
-                Bitmap cachedImage = m_Picasso.Cache.Get(key);
-                if (cachedImage != null && !cachedImage.IsRecycled)
+                UIImage cachedImage = m_Picasso.Cache.Get(key);
+                if (cachedImage != null)
                 {
                     m_Picasso.CancelRequest(target);
                     action.Complete(cachedImage, LoadedFrom.Memory);

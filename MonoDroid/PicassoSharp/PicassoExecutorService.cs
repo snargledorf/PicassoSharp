@@ -1,6 +1,4 @@
-﻿using Android;
-using Android.Content;
-using Android.Net;
+﻿using Android.Net;
 using Java.Lang;
 using Java.Util.Concurrent;
 
