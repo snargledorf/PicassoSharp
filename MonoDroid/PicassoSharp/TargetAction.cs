@@ -12,14 +12,17 @@ namespace PicassoSharp
 		                    bool skipCache,
 		                    bool noFade,
 		                    string key, 
-		                    Drawable errorDrawable)
-			: base(picasso, target, data, skipCache, noFade, key, errorDrawable)
+		                    Drawable errorDrawable,
+                            System.Action onSuccessListener,
+                            System.Action onFailureListener,
+                            System.Action onFinishListener)
+			: base(picasso, target, data, skipCache, noFade, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 
 		#region implemented abstract members of Action
 
-		public override void Complete(Bitmap bitmap, LoadedFrom loadedFrom)
+	    protected override void OnComplete(Bitmap bitmap, LoadedFrom loadedFrom)
 		{
 			if (bitmap == null) {
 				throw new Exception(String.Format("Attempted to complete action with no result!\n{0}", this));
@@ -29,7 +32,7 @@ namespace PicassoSharp
 				target.OnImageLoaded(bitmap, Picasso, loadedFrom);
 		}
 
-		public override void Error()
+	    protected override void OnError()
 		{
 			var target = this.Target as Target;
 			if (target != null)

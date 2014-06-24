@@ -15,8 +15,12 @@ namespace PicassoSharp
 
 		Drawable m_PlaceholderDrawable;
 		Drawable m_ErrorDrawable;
+	    private System.Action m_OnStartListener;
+	    private System.Action m_OnFinishListener;
+	    private System.Action m_OnFailureListener;
+	    private System.Action m_OnSuccessListener;
 
-		internal RequestCreator(Picasso picasso, Uri uri)
+	    internal RequestCreator(Picasso picasso, Uri uri)
         {
 		    if (picasso.IsShutdown)
 		    {
@@ -62,6 +66,9 @@ namespace PicassoSharp
 			if (target == null)
 				throw new ArgumentNullException("target");
 
+            if (m_OnStartListener != null)
+                m_OnStartListener();
+
             target.OnPrepareLoad(m_PlaceholderDrawable);
 
 			Request request = m_RequestBuilder.Build();
@@ -74,7 +81,10 @@ namespace PicassoSharp
                 m_SkipCache,
                 m_NoFade,
 				key,
-				m_ErrorDrawable);
+				m_ErrorDrawable, 
+                m_OnSuccessListener, 
+                m_OnFailureListener,
+                m_OnFinishListener);
 
 			if (!m_SkipCache)
             {
@@ -90,12 +100,7 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
-	    public void Into(ImageView target)
-	    {
-	        Into(target, null);
-	    }
-
-        public void Into(ImageView target, ICallback callback)
+        public void Into(ImageView target)
         {
             if (target == null)
                 throw new ArgumentNullException("target");
@@ -113,7 +118,9 @@ namespace PicassoSharp
                 m_NoFade,
                 key,
                 m_ErrorDrawable,
-                callback);
+                m_OnSuccessListener,
+                m_OnFailureListener,
+                m_OnFinishListener);
 
             if (!m_SkipCache)
             {
@@ -128,6 +135,30 @@ namespace PicassoSharp
 
             m_Picasso.EnqueueAndSubmit(action);
         }
+
+	    public RequestCreator OnStartListener(System.Action action)
+	    {
+            m_OnStartListener = action;
+            return this;
+	    }
+
+	    public RequestCreator OnSuccessListener(System.Action action)
+	    {
+            m_OnSuccessListener = action;
+            return this;
+	    }
+
+	    public RequestCreator OnFailureListener(System.Action action)
+	    {
+	        m_OnFailureListener = action;
+	        return this;
+	    }
+
+	    public RequestCreator OnFinishListener(System.Action action)
+	    {
+	        m_OnFinishListener = action;
+            return this;
+	    }
     }
 }
 

@@ -2,6 +2,7 @@ using System;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Java.Lang.Ref;
+using Object = Java.Lang.Object;
 using WeakReference = Java.Lang.Ref.WeakReference;
 
 namespace PicassoSharp
@@ -31,15 +32,11 @@ namespace PicassoSharp
 		private readonly bool m_NoFade;
 		private readonly string m_Key;
 		private readonly Drawable m_ErrorDrawable;
+	    private readonly System.Action m_OnSuccessListener;
+	    private readonly System.Action m_OnFailureListener;
+	    private readonly System.Action m_OnFinishListener;
 
-	    protected Action(
-			Picasso picasso,
-            Java.Lang.Object target, 
-			Request data, 
-			bool skipCache, 
-			bool noFade,
-			string key, 
-			Drawable errorDrawable)
+	    protected Action(Picasso picasso, Object target, Request data, bool skipCache, bool noFade, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
             m_Target = new RequestWeakReference<Java.Lang.Object>(this, target, picasso.ReferenceQueue);
 			m_Picasso = picasso;
@@ -48,6 +45,9 @@ namespace PicassoSharp
 			m_SkipCache = skipCache;
 			m_NoFade = noFade;
 			m_ErrorDrawable = errorDrawable;
+	        m_OnSuccessListener = onSuccessListener;
+	        m_OnFailureListener = onFailureListener;
+	        m_OnFinishListener = onFinishListener;
         }
 
 		public Picasso Picasso
@@ -112,9 +112,46 @@ namespace PicassoSharp
 			}
 		}
 
-		public abstract void Complete(Bitmap bitmap, LoadedFrom loadedFrom);
+	    protected System.Action OnFinishListener
+	    {
+	        get { return m_OnFinishListener; }
+	    }
 
-		public abstract void Error();
+	    public void Complete(Bitmap bitmap, LoadedFrom loadedFrom)
+	    {
+	        OnComplete(bitmap, loadedFrom);
+
+	        if (m_OnSuccessListener != null)
+	        {
+	            m_OnSuccessListener();
+	        }
+
+	        Finish();
+	    }
+
+	    protected abstract void OnComplete(Bitmap bitmap, LoadedFrom loadedFrom);
+
+	    public void Error()
+	    {
+	        OnError();
+
+	        if (m_OnFailureListener != null)
+	        {
+	            m_OnFailureListener();
+	        }
+
+	        Finish();
+	    }
+
+	    private void Finish()
+	    {
+	        if (m_OnFinishListener != null)
+	        {
+	            m_OnFinishListener();
+	        }
+	    }
+
+	    protected abstract void OnError();
 
         public void Cancel()
         {
