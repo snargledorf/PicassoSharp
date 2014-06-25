@@ -10,33 +10,21 @@ namespace PicassoSharp
 
         private readonly Dictionary<String, T> m_Dictionary;
         private readonly LinkedList<String> m_List;
-        private readonly Func<T, int> m_SlotSizeFunc;
+        private readonly Func<T, int> m_SizeOfFunc;
         private readonly int m_SizeLimit;
-        private readonly int m_EntryLimit;
         private int m_CurrentSize;
         private bool m_Disposed;
 
-        public LruCache(int entryLimit) 
-            : this(entryLimit, 0, null)
+        public LruCache(int sizeLimit, Func<T, int> sizeOfOf) 
         {
-        }
-
-        public LruCache(int sizeLimit, Func<T, int> slotSizer) 
-            : this(0, sizeLimit, slotSizer)
-        {
-        }
-
-        public LruCache(int entryLimit, int sizeLimit, Func<T, int> slotSizer)
-        {
-            if (sizeLimit != 0 && slotSizer == null)
-                throw new ArgumentNullException("If sizeLimit is set, the slotSizer must be provided");
+            if (sizeLimit != 0 && sizeOfOf == null)
+                throw new ArgumentNullException("sizeLimit");
 
             m_List = new LinkedList<String>();
             m_Dictionary = new Dictionary<String, T>();
 
-            m_EntryLimit = entryLimit;
             m_SizeLimit = sizeLimit;
-            m_SlotSizeFunc = slotSizer;
+            m_SizeOfFunc = sizeOfOf;
         }
 
         protected virtual void OnEvict(T value)
@@ -51,7 +39,7 @@ namespace PicassoSharp
 
             if (m_SizeLimit > 0)
             {
-                int size = m_SlotSizeFunc(last);
+                int size = m_SizeOfFunc(last);
                 m_CurrentSize -= size;
             }
 
@@ -66,9 +54,9 @@ namespace PicassoSharp
         {
 			lock (m_Sync)
 			{
-				foreach (var element in m_Dictionary.Values)
+				foreach (var value in m_Dictionary.Values)
 				{
-					OnEvict(element);
+					OnEvict(value);
 				}
 
 				m_Dictionary.Clear();
@@ -94,62 +82,59 @@ namespace PicassoSharp
         {
 			lock (m_Sync)
 			{
-                T node;
-				if (m_Dictionary.TryGetValue(key, out node))
+                T value;
+				if (m_Dictionary.TryGetValue(key, out value))
 				{
 					m_List.Remove(key);
 					m_List.AddFirst(key);
-					return node;
+					return value;
 				}
                 return default(T);
 			}
         }
 
-        public void Set(String key, T newValue) 
+        public void Set(String key, T value) 
         {
 			lock (m_Sync)
 			{
-				int valueSize = m_SizeLimit > 0 ? m_SlotSizeFunc(newValue) : 0;
+                int valueSize = m_SizeOfFunc(value);
+
+                if (valueSize > m_SizeLimit)
+                    throw new ArgumentException(String.Format("Value larger than cache: Entry Size={0} Cache Size={1}", valueSize, m_SizeLimit));
 
                 T currentValue;
 				if (m_Dictionary.TryGetValue(key, out currentValue))
 				{
 					// Is this a new value?
-					if (!currentValue.Equals(newValue))
+					if (!currentValue.Equals(value))
 					{
-						if (m_SizeLimit > 0)
-						{
-							int nodeSize = m_SlotSizeFunc(currentValue);
-							m_CurrentSize -= nodeSize;
-							m_CurrentSize += valueSize;
-						}
+						int nodeSize = m_SizeOfFunc(currentValue);
+						m_CurrentSize -= nodeSize;
+						m_CurrentSize += valueSize;
 
 						// Remove the old value
 						currentValue.Dispose();
-						m_Dictionary[key] = newValue;
+						m_Dictionary[key] = value;
 					}
 
-					// If we already have a key, move it to the front
+					// Set the key to the front
 					m_List.Remove(key);
 					m_List.AddFirst(key);
 				}
 				else
 				{
-					// Check we will be above the size limit before adding a new entry
-					while (m_SizeLimit > 0 && m_CurrentSize + valueSize > m_SizeLimit && m_List.Count > 0)
+					// Check if we will be above the size limit before adding a new value
+					while (m_CurrentSize + valueSize > m_SizeLimit && m_List.Count > 0)
 						Evict();
 
-					if (m_EntryLimit > 0 && m_List.Count >= m_EntryLimit)
-						Evict();
-
-					// Adding the new entry
+					// Adding the new value
 					m_List.AddFirst(key);
-					m_Dictionary[key] = newValue;
+					m_Dictionary[key] = value;
 					m_CurrentSize += valueSize;
 					Console.WriteLine("new size: {0} with {1}", m_CurrentSize, m_List.Count);
 				}
 
-				while (m_SizeLimit > 0 && m_CurrentSize > m_SizeLimit && m_List.Count > 1)
+				while (m_CurrentSize > m_SizeLimit && m_List.Count > 1)
 					Evict();
 			}
         }

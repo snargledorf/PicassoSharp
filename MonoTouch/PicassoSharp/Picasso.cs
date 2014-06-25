@@ -210,7 +210,7 @@ namespace PicassoSharp
                 if (m_Cache == null)
                 {
                     int cacheSize = IOSUtils.CalculateCacheSize();
-                    m_Cache = new LruCache<UIImage>(cacheSize);
+                    m_Cache = new LruCache<UIImage>(cacheSize, IOSUtils.SizeOfImage);
                 }
 
                 if (m_Downloader == null)
