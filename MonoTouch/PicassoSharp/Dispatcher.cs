@@ -12,7 +12,6 @@ namespace PicassoSharp
 
 	    private readonly ICache<UIImage> m_Cache;
 	    private readonly IDownloader m_Downloader;
-        private readonly NSOperationQueue m_OperationQueue;
 
         private readonly Dictionary<String, BitmapHunter> m_Hunters = new Dictionary<String, BitmapHunter>();
         private readonly List<BitmapHunter> m_Batch = new List<BitmapHunter>();
@@ -21,11 +20,10 @@ namespace PicassoSharp
 
 	    private bool m_AirplaneMode;
 
-	    internal Dispatcher(NSOperationQueue operationQueue, ICache<UIImage> cache, IDownloader downloader)
+	    internal Dispatcher(ICache<UIImage> cache, IDownloader downloader)
 	    {
 	        m_Cache = cache;
 	        m_Downloader = downloader;
-	        m_OperationQueue = operationQueue;
             m_AirplaneMode = IOSUtils.IsAirplaneModeOn();
         }
 
@@ -33,25 +31,23 @@ namespace PicassoSharp
 	    {
 	        await Task.Factory.StartNew(() =>
 	        {
+	            BitmapHunter hunter;
 	            lock (m_Lock)
 	            {
-                    BitmapHunter hunter;
-                    if (m_Hunters.TryGetValue(action.Key, out hunter))
-                    {
-                        hunter.Attach(action);
-                        return;
-                    }
-
-                    if (m_OperationQueue.Suspended)
-                    {
-                        return;
-                    }
-
-                    hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
-                    m_OperationQueue.AddOperation(hunter);
-                    m_Hunters.Add(action.Key, hunter);
+	                if (m_Hunters.TryGetValue(action.Key, out hunter))
+	                {
+	                    hunter.Attach(action);
+	                    return;
+	                }
 	            }
 
+	            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
+	            hunter.Run();
+
+	            lock (m_Lock)
+	            {
+	                m_Hunters.Add(action.Key, hunter);
+	            }
 	        });
 	    }
 

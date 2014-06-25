@@ -2,24 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
-	abstract class BitmapHunter : NSOperation
+	abstract class BitmapHunter
 	{
-	    private static readonly ThreadLocal<StringBuilder> NameBuilder = new ThreadLocal<StringBuilder>();
+	    private static readonly ThreadLocal<StringBuilder> NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
         
 	    private readonly Picasso m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<UIImage> m_Cache;
-	    private readonly IDownloader m_Downloader;
 	    private readonly bool m_SkipCache;
 		private readonly Request m_Data;
 		private readonly string m_Key;
+	    private readonly CancellationTokenSource m_CancellationSource;
+	    private Task m_Task;
 
-	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache, IDownloader downloader)
+	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache)
         {
             Action = action;
 			m_Data = action.Data;
@@ -27,8 +29,8 @@ namespace PicassoSharp
 			m_Picasso = picasso;
             m_Dispatcher = dispatcher;
 			m_Cache = cache;
-	        m_Downloader = downloader;
 	        m_SkipCache = action.SkipCache;
+	        m_CancellationSource = new CancellationTokenSource();
         }
 
 	    public Action Action { get; private set; }
@@ -85,11 +87,6 @@ namespace PicassoSharp
 			protected set;
 		}
 
-	    public IDownloader Downloader
-	    {
-	        get { return m_Downloader; }
-	    }
-
 	    public void Attach(Action action)
         {
             if (Action == null)
@@ -117,51 +114,60 @@ namespace PicassoSharp
             }
         }
 
-        public override void Cancel()
+        public void Cancel()
         {
             if (Action == null && (Actions == null || Actions.Count == 0))
             {
-                base.Cancel();
+                m_CancellationSource.Cancel();
             }
         }
 
-        public override void Main()
+        public bool IsCancelled { get { return m_Task != null && m_Task.IsCanceled; } }
+
+        public void Run()
         {
-            try
+            m_Task = Task.Factory.StartNew(() =>
             {
-                UpdateThreadName(m_Data);
-
-                Result = Hunt();
-
-                if (Result == null)
+                try
                 {
+                    UpdateThreadName(m_Data);
+
+                    Result = Hunt();
+
+                    if (Result == null)
+                    {
+                        m_Dispatcher.DispatchFailed(this);
+                    }
+                    else
+                    {
+                        m_Dispatcher.DispatchComplete(this);
+                    }
+                }
+                catch (ResponseException ex)
+                {
+                    Exception = ex;
                     m_Dispatcher.DispatchFailed(this);
                 }
-                else
+                    // TODO Dispatch retry
+                    //            catch (IOException ex)
+                    //            {
+                    //                Exception = ex;
+                    //                m_Dispatcher.DispatchRetry(this);
+                    //            }
+                catch (OperationCanceledException)
                 {
-                    m_Dispatcher.DispatchComplete(this);
+                    // NoOp
                 }
-            }
-            catch (ResponseException ex)
-            {
-                Exception = ex;
-                m_Dispatcher.DispatchFailed(this);
-            }
-                // TODO Dispatch retry
-//            catch (IOException ex)
-//            {
-//                Exception = ex;
-//                m_Dispatcher.DispatchRetry(this);
-//            }
-            catch (Exception ex)
-            {
-                Exception = ex;
-                m_Dispatcher.DispatchFailed(this);
-            }
-            finally
-            {
-                Thread.CurrentThread.Name = Utils.ThreadIdleName;
-            }
+                catch (Exception ex)
+                {
+                    Exception = ex;
+                    m_Dispatcher.DispatchFailed(this);
+                }
+                finally
+                {
+                    Thread.CurrentThread.Name = Utils.ThreadIdleName;
+                }
+            }, m_CancellationSource.Token);
         }
 
 	    protected abstract UIImage Decode(Request data);
@@ -202,10 +208,10 @@ namespace PicassoSharp
 		{
 		    if (action.Data.Uri.IsFile)
 			{
-				return new FileBitmapHunter(picasso, action, dispatcher, cache, downloader);
+				return new FileBitmapHunter(picasso, action, dispatcher, cache);
 			}
 		    return new NetworkBitmapHunter(picasso, action, dispatcher, cache, downloader);
 		}
-	}
+    }
 }
 

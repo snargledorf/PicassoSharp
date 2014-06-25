@@ -14,6 +14,11 @@ namespace PicassoSharp
 		UIImage m_PlaceholderImage;
         UIImage m_ErrorImage;
 
+        private System.Action m_OnStartListener;
+        private System.Action m_OnFinishListener;
+        private System.Action m_OnFailureListener;
+        private System.Action m_OnSuccessListener;
+
 		internal RequestCreator(Picasso picasso, Uri uri)
         {
 		    if (picasso.IsShutdown)
@@ -72,7 +77,10 @@ namespace PicassoSharp
                 m_SkipCache,
                 m_NoFade,
 				key,
-				m_ErrorImage);
+				m_ErrorImage,
+                m_OnSuccessListener,
+                m_OnFailureListener,
+                m_OnFinishListener);
 
 			if (!m_SkipCache)
             {
@@ -112,7 +120,9 @@ namespace PicassoSharp
                 m_NoFade,
                 key,
                 m_ErrorImage,
-                callback);
+                m_OnSuccessListener,
+                m_OnFailureListener,
+                m_OnFinishListener);
 
             if (!m_SkipCache)
             {
@@ -126,6 +136,30 @@ namespace PicassoSharp
             }
 
             m_Picasso.EnqueueAndSubmit(action);
+        }
+
+        public RequestCreator OnStartListener(System.Action action)
+        {
+            m_OnStartListener = action;
+            return this;
+        }
+
+        public RequestCreator OnSuccessListener(System.Action action)
+        {
+            m_OnSuccessListener = action;
+            return this;
+        }
+
+        public RequestCreator OnFailureListener(System.Action action)
+        {
+            m_OnFailureListener = action;
+            return this;
+        }
+
+        public RequestCreator OnFinishListener(System.Action action)
+        {
+            m_OnFinishListener = action;
+            return this;
         }
     }
 }

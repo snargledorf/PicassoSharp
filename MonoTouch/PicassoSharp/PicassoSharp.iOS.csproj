@@ -39,7 +39,6 @@
     <Compile Include="Dispatcher.cs" />
     <Compile Include="FileBitmapHunter.cs" />
     <Compile Include="NetworkBitmapHunter.cs" />
-    <Compile Include="PicassoNSOperationQueue.cs" />
     <Compile Include="UIImageViewAction.cs" />
     <Compile Include="IOSUtils.cs" />
     <Compile Include="ITarget.cs" />

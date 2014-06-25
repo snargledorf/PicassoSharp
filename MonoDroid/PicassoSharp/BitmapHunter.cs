@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Android.Graphics;
+using Android.Net;
 using Java.Lang;
 using Java.Util.Concurrent;
 using Exception = System.Exception;
@@ -17,12 +19,11 @@ namespace PicassoSharp
 	    private readonly Picasso m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<Bitmap> m_Cache;
-	    private readonly IDownloader m_Downloader;
 	    private readonly bool m_SkipCache;
 		private readonly Request m_Data;
 		private readonly string m_Key;
 
-	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, IDownloader downloader)
+	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache)
         {
             Action = action;
 			m_Data = action.Data;
@@ -30,7 +31,6 @@ namespace PicassoSharp
 			m_Picasso = picasso;
             m_Dispatcher = dispatcher;
 			m_Cache = cache;
-	        m_Downloader = downloader;
 	        m_SkipCache = action.SkipCache;
         }
 
@@ -95,10 +95,7 @@ namespace PicassoSharp
 	        get { return Future != null && Future.IsCancelled; }
         }
 
-	    public IDownloader Downloader
-	    {
-	        get { return m_Downloader; }
-	    }
+        public virtual bool SupportsReplay { get { return false; } }
 
 	    public void Attach(Action action)
         {
@@ -157,12 +154,11 @@ namespace PicassoSharp
                 Exception = ex;
                 m_Dispatcher.DispatchFailed(this);
             }
-                // TODO Dispatch retry
-//            catch (IOException ex)
-//            {
-//                Exception = ex;
-//                m_Dispatcher.DispatchRetry(this);
-//            }
+            catch (IOException ex)
+            {
+                Exception = ex;
+                m_Dispatcher.DispatchRetry(this);
+            }
             catch (Exception ex)
             {
                 Exception = ex;
@@ -248,10 +244,15 @@ namespace PicassoSharp
 		{
 		    if (action.Data.Uri.IsFile)
 			{
-				return new FileBitmapHunter(picasso, action, dispatcher, cache, downloader);
+				return new FileBitmapHunter(picasso, action, dispatcher, cache);
 			}
 		    return new NetworkBitmapHunter(picasso, action, dispatcher, cache, downloader);
 		}
+
+	    public virtual bool ShouldRetry(bool airplaneMode, NetworkInfo info)
+	    {
+            return false;
+	    }
 	}
 }
 

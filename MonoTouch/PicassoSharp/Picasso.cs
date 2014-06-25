@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
-using PicassoSharp.Threading;
 
 namespace PicassoSharp
 {
@@ -22,19 +20,15 @@ namespace PicassoSharp
 
         private static readonly NSObject s_MainThreadInvokeObject = new NSObject();
 
-        private readonly NSOperationQueue m_OperationQueue;
-	    private readonly IDownloader m_Downloader;
         private readonly ICache<UIImage> m_Cache;
         private readonly Dispatcher m_Dispatcher;
         private readonly ConditionalWeakTable<Object, Action> m_TargetToAction;
 
 	    private bool m_Disposed;
 
-        private Picasso(ICache<UIImage> cache, NSOperationQueue operationQueue, IDownloader downloader, Dispatcher dispatcher)
+        private Picasso(ICache<UIImage> cache, Dispatcher dispatcher)
         {
 			m_Cache = cache;
-			m_OperationQueue = operationQueue;
-		    m_Downloader = downloader;
 		    m_Dispatcher = dispatcher;
 		    m_TargetToAction = new ConditionalWeakTable<Object, Action>();
 		}
@@ -69,8 +63,6 @@ namespace PicassoSharp
 
 			m_Cache.Clear();
 
-			m_OperationQueue.Shutdown();
-
             IsShutdown = true;
 		}
 
@@ -99,7 +91,7 @@ namespace PicassoSharp
 			}
 			else
 			{
-				var target = action.Target;
+				object target = action.Target;
 				if (target != null)
 				{
 					CancelExistingRequest(target);
@@ -195,7 +187,6 @@ namespace PicassoSharp
         public class Builder
         {
             private ICache<UIImage> m_Cache;
-            private NSOperationQueue m_OperationQueue;
             private IDownloader m_Downloader;
 
             public Builder()
@@ -205,12 +196,6 @@ namespace PicassoSharp
             public Builder Cache(ICache<UIImage> cache)
             {
                 m_Cache = cache;
-                return this;
-            }
-
-            public Builder OperationQueue(NSOperationQueue operationQueue)
-            {
-                m_OperationQueue = operationQueue;
                 return this;
             }
 
@@ -228,19 +213,14 @@ namespace PicassoSharp
                     m_Cache = new LruCache<UIImage>(cacheSize);
                 }
 
-                if (m_OperationQueue == null)
-                {
-                    m_OperationQueue = new PicassoNSOperationQueue();
-                }
-
                 if (m_Downloader == null)
                 {
                     m_Downloader = new WebClientDownloader();
                 }
 
-                Dispatcher dispatcher = new Dispatcher(m_OperationQueue, m_Cache, m_Downloader);
+                Dispatcher dispatcher = new Dispatcher(m_Cache, m_Downloader);
 
-                return new Picasso(m_Cache, m_OperationQueue, m_Downloader, dispatcher);
+                return new Picasso(m_Cache, dispatcher);
             }
         }
     }

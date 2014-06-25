@@ -32,7 +32,6 @@ namespace PicassoSharp
 
         private readonly Context m_Context;
         private readonly IExecutorService m_Service;
-        private readonly IDownloader m_Downloader;
         private readonly ICache<Bitmap> m_Cache;
         private readonly Dispatcher m_Dispatcher;
         private readonly IListener m_Listener;
@@ -48,13 +47,11 @@ namespace PicassoSharp
             get { return m_Context; }
         }
 
-        private Picasso(Context context, ICache<Bitmap> cache, IExecutorService service, IDownloader downloader,
-            Dispatcher dispatcher, IListener listener)
+        private Picasso(Context context, ICache<Bitmap> cache, IExecutorService service, Dispatcher dispatcher, IListener listener)
         {
             m_Context = context;
             m_Cache = cache;
             m_Service = service;
-            m_Downloader = downloader;
             m_Dispatcher = dispatcher;
             m_Listener = listener;
             m_TargetToAction = new ConditionalWeakTable<object, Action>();
@@ -317,7 +314,7 @@ namespace PicassoSharp
 
                 var dispatcher = new Dispatcher(m_Context, Handler, m_Service, m_Cache, m_Downloader);
 
-                return new Picasso(m_Context, m_Cache, m_Service, m_Downloader, dispatcher, m_Listener);
+                return new Picasso(m_Context, m_Cache, m_Service, dispatcher, m_Listener);
             }
         }
 

@@ -5,24 +5,24 @@ namespace PicassoSharp
 {
 	public class UIImageViewAction : Action
 	{
-        private readonly ICallback m_Callback;
 		public UIImageViewAction(
             Picasso picasso, 
             UIImageView target, 
             Request data,
             bool skipCache,
             bool noFade,
-            string key, 
+            string key,
             UIImage errorImage,
-            ICallback callback)
-			: base(picasso, target, data, skipCache, noFade, key, errorImage)
+            System.Action onSuccessListener,
+            System.Action onFailureListener,
+            System.Action onFinishListener)
+            : base(picasso, target, data, skipCache, noFade, key, errorImage, onSuccessListener, onFailureListener, onFinishListener)
 		{
-            m_Callback = callback;
 		}
 
 		#region implemented abstract members of Action
 
-		public override void Complete(UIImage bitmap, LoadedFrom loadedFrom)
+		protected override void OnComplete(UIImage bitmap, LoadedFrom loadedFrom)
 		{
 			if (bitmap == null) {
 				throw new Exception(String.Format("Attempted to complete action with no result!\n{0}", this));
@@ -32,28 +32,18 @@ namespace PicassoSharp
 			if (target == null)
 				return;
 
-            UIPicassoImage.SetImage(target, Picasso.Context, bitmap, loadedFrom, NoFade);
-
-            if (m_Callback != null)
-            {
-                m_Callback.OnSuccess();
-            }
+		    target.Image = bitmap;
 		}
 
-	    public override void Error()
+	    protected override void OnError()
 	    {
-            var target = this.Target as ImageView;
+            var target = this.Target as UIImageView;
             if (target == null)
                 return;
 
-	        if (ErrorDrawable != null)
+	        if (ErrorImage != null)
 	        {
-	            target.SetImageDrawable(ErrorDrawable);
-	        }
-
-	        if (m_Callback != null)
-	        {
-	            m_Callback.OnError();
+	            target.Image = ErrorImage;
 	        }
 	    }
 

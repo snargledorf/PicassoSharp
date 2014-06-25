@@ -11,7 +11,10 @@ namespace PicassoSharp
 		private readonly bool m_SkipCache;
 		private readonly bool m_NoFade;
 		private readonly string m_Key;
-		private readonly UIImage m_ErrorImage;
+        private readonly UIImage m_ErrorImage;
+        private readonly System.Action m_OnSuccessListener;
+        private readonly System.Action m_OnFailureListener;
+        private readonly System.Action m_OnFinishListener;
 
 		public Action(
 			Picasso picasso, 
@@ -20,7 +23,10 @@ namespace PicassoSharp
 			bool skipCache, 
 			bool noFade,
 			string key,
-            UIImage errorImage)
+            UIImage errorImage, 
+            System.Action onSuccessListener,
+            System.Action onFailureListener,
+            System.Action onFinishListener)
         {
 			m_Target = new WeakReference<object>(target);
 			m_Picasso = picasso;
@@ -28,7 +34,10 @@ namespace PicassoSharp
 			m_Key = key;
 			m_SkipCache = skipCache;
 			m_NoFade = noFade;
-			m_ErrorImage = errorImage;
+            m_ErrorImage = errorImage;
+            m_OnSuccessListener = onSuccessListener;
+            m_OnFailureListener = onFailureListener;
+            m_OnFinishListener = onFinishListener;
         }
 
 		public Picasso Picasso
@@ -95,9 +104,41 @@ namespace PicassoSharp
 			}
 		}
 
-		public abstract void Complete(UIImage bitmap, LoadedFrom loadedFrom);
+        public void Complete(UIImage image, LoadedFrom loadedFrom)
+        {
+            OnComplete(image, loadedFrom);
 
-		public abstract void Error();
+            if (m_OnSuccessListener != null)
+            {
+                m_OnSuccessListener();
+            }
+
+            Finish();
+        }
+
+        protected abstract void OnComplete(UIImage image, LoadedFrom loadedFrom);
+
+        public void Error()
+        {
+            OnError();
+
+            if (m_OnFailureListener != null)
+            {
+                m_OnFailureListener();
+            }
+
+            Finish();
+        }
+
+        private void Finish()
+        {
+            if (m_OnFinishListener != null)
+            {
+                m_OnFinishListener();
+            }
+        }
+
+        protected abstract void OnError();
 
         public void Cancel()
         {
