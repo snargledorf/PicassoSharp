@@ -18,7 +18,7 @@ namespace PicassoSharp
 	        }
 	    }
 
-        private static readonly NSObject s_MainThreadInvokeObject = new NSObject();
+        private static readonly NSObject MainThreadInvokeObject = new NSObject();
 
         private readonly ICache<UIImage> m_Cache;
         private readonly Dispatcher m_Dispatcher;
@@ -113,7 +113,7 @@ namespace PicassoSharp
 
         internal static void BatchComplete(BitmapHunter[] hunters)
         {
-            s_MainThreadInvokeObject.InvokeOnMainThread(() =>
+            MainThreadInvokeObject.InvokeOnMainThread(() =>
             {
                 foreach (BitmapHunter hunter in hunters)
                 {
