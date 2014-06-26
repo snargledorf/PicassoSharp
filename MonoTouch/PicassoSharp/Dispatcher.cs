@@ -81,11 +81,6 @@ namespace PicassoSharp
             {
                 lock (m_Lock)
                 {
-                    if (!hunter.SkipCache)
-                    {
-                        m_Cache.Set(hunter.Key, hunter.Result);
-                    }
-
                     m_Hunters.Remove(hunter.Key);
                 }
                 Batch(hunter);

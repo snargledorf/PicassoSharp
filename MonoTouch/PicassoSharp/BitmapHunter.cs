@@ -140,6 +140,11 @@ namespace PicassoSharp
                     }
                     else
                     {
+                        if (!SkipCache)
+                        {
+                            m_Cache.Set(Key, Result);
+                        }
+
                         m_Dispatcher.DispatchComplete(this);
                     }
                 }
