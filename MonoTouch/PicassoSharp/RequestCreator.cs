@@ -96,12 +96,7 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
-	    public void Into(UIImageView target)
-	    {
-	        Into(target, null);
-	    }
-
-        public void Into(UIImageView target, ICallback callback)
+		public void Into(UIImageView target)
         {
             if (target == null)
                 throw new ArgumentNullException("target");
