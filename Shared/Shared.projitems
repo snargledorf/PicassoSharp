@@ -16,6 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LruCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Request.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WebClientDownloader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebRequestDownloader.cs" />
   </ItemGroup>
 </Project>

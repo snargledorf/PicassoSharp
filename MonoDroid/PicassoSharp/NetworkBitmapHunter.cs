@@ -20,11 +20,13 @@ namespace PicassoSharp
         
         protected override Bitmap Decode(Request data)
         {
-            LoadedFrom = LoadedFrom.Network;
+            bool localCacheOnly = m_RetryCount == 0;
 
-            Response response = m_Downloader.Load(data.Uri);
+            Response response = m_Downloader.Load(data.Uri, localCacheOnly);
             if (response == null)
                 return null;
+
+            LoadedFrom = response.Cached ? LoadedFrom.Disk : LoadedFrom.Network;
 
             Stream stream = response.BitmapStream;
             if (stream == null)

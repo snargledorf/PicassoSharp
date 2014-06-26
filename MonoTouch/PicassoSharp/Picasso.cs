@@ -215,7 +215,7 @@ namespace PicassoSharp
 
                 if (m_Downloader == null)
                 {
-                    m_Downloader = new WebClientDownloader();
+                    m_Downloader = new NSUrlDownloader();
                 }
 
                 Dispatcher dispatcher = new Dispatcher(m_Cache, m_Downloader);

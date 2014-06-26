@@ -309,7 +309,7 @@ namespace PicassoSharp
 
                 if (m_Downloader == null)
                 {
-                    m_Downloader = new WebClientDownloader();
+                    m_Downloader = new WebRequestDownloader();
                 }
 
                 var dispatcher = new Dispatcher(m_Context, Handler, m_Service, m_Cache, m_Downloader);

@@ -17,11 +17,11 @@ namespace PicassoSharp
         
         protected override UIImage Decode(Request data)
         {
-            LoadedFrom = LoadedFrom.Network;
-
-            Response response = m_Downloader.Load(data.Uri);
+            Response response = m_Downloader.Load(data.Uri, false);
             if (response == null)
                 return null;
+            
+            LoadedFrom = response.Cached ? LoadedFrom.Disk : LoadedFrom.Network;
 
             Stream stream = response.BitmapStream;
             if (stream == null)

@@ -5,7 +5,7 @@ namespace PicassoSharp
 {
     public interface IDownloader
     {
-        Response Load(Uri uri);
+        Response Load(Uri uri, bool localCacheOnly);
     }
 
     public class ResponseException : IOException
@@ -20,15 +20,22 @@ namespace PicassoSharp
     public class Response
     {
         private readonly Stream m_BitmapStream;
+        private readonly bool m_Cached;
 
-        public Response(Stream bitmapStream)
+        public Response(Stream bitmapStream, bool cached)
         {
             m_BitmapStream = bitmapStream;
+            m_Cached = cached;
         }
 
         public Stream BitmapStream
         {
             get { return m_BitmapStream; }
+        }
+
+        public bool Cached
+        {
+            get { return m_Cached; }
         }
     }
 }
