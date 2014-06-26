@@ -1,4 +1,3 @@
-using System.IO;
 using MonoTouch.UIKit;
 
 namespace PicassoSharp
@@ -14,7 +13,7 @@ namespace PicassoSharp
 		{
 			LoadedFrom = LoadedFrom.Disk;
 
-			return UIImage.FromFile(data.Uri.AbsolutePath);
+			return UIImage.FromFile(data.Uri.AbsoluteUri);
 		}
 	}
 
