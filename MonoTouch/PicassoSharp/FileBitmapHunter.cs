@@ -13,7 +13,7 @@ namespace PicassoSharp
 		{
 			LoadedFrom = LoadedFrom.Disk;
 
-			return UIImage.FromFile(data.Uri.AbsoluteUri);
+			return UIImage.FromFile(data.Uri.AbsolutePath);
 		}
 	}
 

@@ -206,7 +206,7 @@ namespace PicassoSharp
             builder.EnsureCapacity(Utils.ThreadPrefix.Length + name.Length);
             builder.Insert(Utils.ThreadPrefix.Length, name);
 
-            Thread.CurrentThread.Name = builder.ToString();
+			NSThread.Current.Name = builder.ToString();
         }
 
 		public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache, IDownloader downloader)
