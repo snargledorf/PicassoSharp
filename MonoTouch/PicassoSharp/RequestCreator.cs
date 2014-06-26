@@ -65,6 +65,11 @@ namespace PicassoSharp
 			if (target == null)
 				throw new ArgumentNullException("target");
 
+			if (m_OnStartListener != null)
+			{
+				m_OnStartListener ();
+			}
+
             target.OnPrepareLoad(m_PlaceholderImage);
 
 			Request request = m_RequestBuilder.Build();
@@ -100,6 +105,11 @@ namespace PicassoSharp
         {
             if (target == null)
                 throw new ArgumentNullException("target");
+
+			if (m_OnStartListener != null)
+			{
+				m_OnStartListener ();
+			}
 
             if (m_PlaceholderImage != null)
                 target.Image = m_PlaceholderImage;

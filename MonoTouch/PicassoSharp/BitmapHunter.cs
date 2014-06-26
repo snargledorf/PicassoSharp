@@ -170,7 +170,7 @@ namespace PicassoSharp
                 }
                 finally
                 {
-                    Thread.CurrentThread.Name = Utils.ThreadIdleName;
+					NSThread.Current.Name = Utils.ThreadIdleName;
                 }
             }, m_CancellationSource.Token);
         }
