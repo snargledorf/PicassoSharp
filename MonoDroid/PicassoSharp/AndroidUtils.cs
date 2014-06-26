@@ -13,7 +13,7 @@ namespace PicassoSharp
 	{
 		public static int CalculateCacheSize(Context context)
 		{
-            ActivityManager am = (ActivityManager)context.GetSystemService(Context.ActivityService);
+            var am = (ActivityManager)context.GetSystemService(Context.ActivityService);
 			bool largeHeap = (context.ApplicationInfo.Flags & Android.Content.PM.ApplicationInfoFlags.LargeHeap) != 0;
 			int memoryClass = am.MemoryClass;
 			if (largeHeap && Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Honeycomb)
