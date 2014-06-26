@@ -1,6 +1,7 @@
 using Android;
 using Android.Content;
 using Android.App;
+using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Java.Lang;
@@ -55,6 +56,15 @@ namespace PicassoSharp
         {
             ContentResolver contentResolver = context.ContentResolver;
             return Settings.System.GetInt(contentResolver, Settings.System.AirplaneModeOn, 0) != 0;
+	    }
+
+	    public static int SizeOfBitmap(Bitmap bitmap)
+	    {
+	        if (Build.VERSION.SdkInt >= BuildVersionCodes.HoneycombMr1)
+	        {
+	            return bitmap.ByteCount;
+	        }
+	        return bitmap.RowBytes*bitmap.Height;
 	    }
 	}
 

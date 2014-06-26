@@ -299,7 +299,7 @@ namespace PicassoSharp
                 if (m_Cache == null)
                 {
                     int cacheSize = AndroidUtils.CalculateCacheSize(m_Context);
-                    m_Cache = new LruCache<Bitmap>(cacheSize);
+                    m_Cache = new LruCache<Bitmap>(cacheSize, AndroidUtils.SizeOfBitmap);
                 }
 
                 if (m_Service == null)
