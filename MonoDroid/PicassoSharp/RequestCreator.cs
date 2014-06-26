@@ -31,9 +31,9 @@ namespace PicassoSharp
 			m_Picasso = picasso;
 		}
 
-		public RequestCreator SkipCache(bool skipCache)
+		public RequestCreator SkipCache()
 		{
-			m_SkipCache = skipCache;
+			m_SkipCache = true;
 			return this;
 		}
 

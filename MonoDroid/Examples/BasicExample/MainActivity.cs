@@ -30,7 +30,7 @@ namespace BasicExample
             {
                 Picasso.With(this)
                     .Load(TestImagePath)
-                    .SkipCache(true)
+                    .SkipCache()
                     .Into(imageView);
             };
         }
