@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ICache.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ICallback.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IDownloader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoadedFrom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LruCache.cs" />
