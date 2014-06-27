@@ -45,6 +45,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestCreator.cs" />
     <Compile Include="TargetAction.cs" />
+    <Compile Include="UIImageViewSpinnerTarget.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

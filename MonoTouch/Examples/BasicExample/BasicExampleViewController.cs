@@ -28,10 +28,12 @@ namespace BasicExample
         {
             base.ViewDidLoad();
 
+            var target = new UIImageViewSpinnerTarget(imageView);
+
             // Perform any additional setup after loading the view, typically from a nib.
             Picasso.DefaultInstance
                 .Load("http://lotssports.com/wp-content/uploads/2014/04/apple-logo..jpg")
-                .Into(imageView);
+                .Into(target);
         }
 
         public override void ViewWillAppear(bool animated)
