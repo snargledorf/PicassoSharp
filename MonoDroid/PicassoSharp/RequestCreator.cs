@@ -105,6 +105,9 @@ namespace PicassoSharp
             if (target == null)
                 throw new ArgumentNullException("target");
 
+            if (m_OnStartListener != null)
+                m_OnStartListener();
+
             PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
 
             Request request = m_RequestBuilder.Build();
