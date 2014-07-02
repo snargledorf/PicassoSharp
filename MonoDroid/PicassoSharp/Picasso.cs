@@ -155,7 +155,7 @@ namespace PicassoSharp
         {
             Uri uri = hunter.Data.Uri;
             Action action = hunter.Action;
-            List<Action> actions = hunter.Actions;
+            List<Action> additionalActions = hunter.Actions;
             Bitmap result = hunter.Result;
             LoadedFrom loadedFrom = hunter.LoadedFrom;
             Exception exception = hunter.Exception;
@@ -165,11 +165,11 @@ namespace PicassoSharp
                 CompleteAction(result, action, loadedFrom);
             }
 
-            if (actions != null)
+            if (additionalActions != null)
             {
-                foreach (Action action_ in actions)
+                foreach (Action additionalAction in additionalActions)
                 {
-                    CompleteAction(result, action_, loadedFrom);
+                    CompleteAction(result, additionalAction, loadedFrom);
                 }
             }
 
@@ -299,16 +299,16 @@ namespace PicassoSharp
                 switch (msg.What)
                 {
                     case BatchComplete:
-                        ArrayList hunters = (ArrayList) msg.Obj;
+                        var hunters = (ArrayList) msg.Obj;
                         for (int i = 0; i < hunters.Size(); i++)
                         {
-                            BitmapHunter hunter = (BitmapHunter) hunters.Get(i);
+                            var hunter = (BitmapHunter) hunters.Get(i);
                             hunter.Picasso.Complete(hunter);
                         }
                         break;
                     case RequestGced:
                     {
-                        Action action = (Action) msg.Obj;
+                        var action = (Action) msg.Obj;
                         action.Picasso.CancelExistingRequest(action.Target);
                     }
                         break;
