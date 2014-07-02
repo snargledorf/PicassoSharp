@@ -65,14 +65,6 @@ namespace PicassoSharp
             m_RetryCount--;
             return info == null || info.IsConnectedOrConnecting;
         }
-
-        public override bool SupportsReplay
-        {
-            get
-            {
-                return true;
-            }
-        }
     }
 }
 

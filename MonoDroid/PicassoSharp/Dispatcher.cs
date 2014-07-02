@@ -35,7 +35,6 @@ namespace PicassoSharp
 	    private readonly IExecutorService m_Service;
         private readonly NetworkBroadcastReceiver m_Receiver;
         private readonly Dictionary<String, BitmapHunter> m_Hunters = new Dictionary<String, BitmapHunter>();
-        private readonly WeakHashMap m_FailedActions = new WeakHashMap();
         private readonly List<BitmapHunter> m_Batch = new List<BitmapHunter>();
 	    private bool m_AirplaneMode;
 	    private NetworkInfo m_NetworkInfo;
@@ -115,7 +114,6 @@ namespace PicassoSharp
             hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
             hunter.Future = m_Service.Submit(hunter);
             m_Hunters.Add(action.Key, hunter);
-	        m_FailedActions.Remove(action.Target);
 	    }
 
 	    void PerformCancel(Action action)
@@ -131,7 +129,6 @@ namespace PicassoSharp
                     m_Hunters.Remove(key);
                 }
             }
-	        m_FailedActions.Remove(action.Target);
 	    }
 
 	    void PerformComplete(BitmapHunter hunter)
@@ -158,7 +155,6 @@ namespace PicassoSharp
 
             bool hasConnectivity = m_NetworkInfo != null && m_NetworkInfo.IsConnectedOrConnecting;
             bool shouldRetryHunter = hunter.ShouldRetry(m_AirplaneMode, m_NetworkInfo);
-            bool supportsReplay = hunter.SupportsReplay;
 
             if (shouldRetryHunter)
             {
@@ -168,40 +164,14 @@ namespace PicassoSharp
                 }
                 else
                 {
-                    if (supportsReplay)
-                    {
-                        MarkForReplay(hunter);
-                    }
                     PerformError(hunter);
                 }
             }
             else
             {
-                if (supportsReplay)
-                {
-                    MarkForReplay(hunter);
-                }
                 PerformError(hunter);
             }
         }
-
-	    private void MarkForReplay(BitmapHunter hunter)
-	    {
-	        Action action = hunter.Action;
-	        if (action != null)
-	        {
-	            m_FailedActions.Put(action.Target, action);
-	        }
-
-	        List<Action> joined = hunter.Actions;
-            if (joined != null)
-	        {
-                foreach (Action join in joined)
-                {
-                    m_FailedActions.Put(join.Target, join);
-                }    
-	        }
-	    }
 
 	    private void PerformBatchComplete()
 	    {
@@ -225,25 +195,7 @@ namespace PicassoSharp
             {
                 service.AdujstThreadCount(info);
             }
-
-            if (m_NetworkInfo != null && m_NetworkInfo.IsConnected)
-            {
-                FlushFailedActions();
-            }
         }
-
-	    private void FlushFailedActions()
-	    {
-	        if (!m_FailedActions.IsEmpty)
-	        {
-	            Action[] actions = m_FailedActions.ToArray<Action>();
-	            foreach (Action action in actions)
-	            {
-	                m_FailedActions.Remove(action.Target);
-	                PerformSubmit(action);
-	            }
-	        }
-	    }
 
 	    private void PerformAirplaneModeChange(bool airplaneMode)
         {

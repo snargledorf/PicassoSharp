@@ -95,8 +95,6 @@ namespace PicassoSharp
 	        get { return Future != null && Future.IsCancelled; }
         }
 
-        public virtual bool SupportsReplay { get { return false; } }
-
 	    public void Attach(Action action)
         {
             if (Action == null)
