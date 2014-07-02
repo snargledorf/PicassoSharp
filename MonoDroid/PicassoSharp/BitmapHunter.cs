@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -7,6 +8,7 @@ using Java.Lang;
 using Java.Util.Concurrent;
 using Exception = System.Exception;
 using Math = System.Math;
+using Object = Java.Lang.Object;
 using StringBuilder = System.Text.StringBuilder;
 using Thread = Java.Lang.Thread;
 
@@ -219,8 +221,8 @@ namespace PicassoSharp
             int sampleSize = 1;
             if (height > reqHeight || width > reqWidth)
             {
-                int heightRatio = (int)Math.Round((decimal)(height / reqHeight));
-                int widthRatio = (int)Math.Round((decimal)(width / reqWidth));
+                int heightRatio = (int)Math.Round((height / (decimal)reqHeight));
+                int widthRatio = (int)Math.Round((width / (decimal)reqWidth));
                 sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
             }
             options.InSampleSize = sampleSize;
