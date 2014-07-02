@@ -250,7 +250,7 @@ namespace PicassoSharp
 	                    break;
                     case HunterRetry:
                     {
-                      BitmapHunter hunter = (BitmapHunter) msg.Obj;
+                      var hunter = (BitmapHunter) msg.Obj;
                       m_Dispatcher.PerformRetry(hunter);
                       break;
                     }

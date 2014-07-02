@@ -68,7 +68,7 @@ namespace PicassoSharp
 
 	    public static byte[] ToByteArray(Stream stream)
 	    {
-	        using (MemoryStream ms = new MemoryStream())
+	        using (var ms = new MemoryStream())
 	        {
 	            byte[] buffer = new byte[1024*4];
 	            int bytesRead;
