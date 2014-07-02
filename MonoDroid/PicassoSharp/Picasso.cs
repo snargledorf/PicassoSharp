@@ -20,7 +20,7 @@ namespace PicassoSharp
         private const int RequestGced = 0;
         public const int BatchComplete = 1;
 
-        private static readonly Handler Handler = new PicassoSharpHandler();
+        public static readonly Handler Handler = new PicassoSharpHandler();
 
         private static Picasso s_Instance;
 
@@ -29,7 +29,9 @@ namespace PicassoSharp
         private readonly ICache<Bitmap> m_Cache;
         private readonly Dispatcher m_Dispatcher;
         private readonly IListener m_Listener;
-        private readonly ConditionalWeakTable<object, Action> m_TargetToAction;
+        private readonly WeakHashtable<object, Action> m_TargetToAction;
+        private readonly WeakHashtable<ImageView, DeferredRequestCreator> m_TargetToDeferredRequestCreator;
+        
         private bool m_Disposed;
 
         public Context Context
@@ -44,7 +46,8 @@ namespace PicassoSharp
             m_Service = service;
             m_Dispatcher = dispatcher;
             m_Listener = listener;
-            m_TargetToAction = new ConditionalWeakTable<object, Action>();
+            m_TargetToAction = new WeakHashtable<object, Action>();
+            m_TargetToDeferredRequestCreator = new WeakHashtable<ImageView, DeferredRequestCreator>();
         }
 
         public ICache<Bitmap> Cache
@@ -76,6 +79,13 @@ namespace PicassoSharp
 
             m_Service.Shutdown();
 
+            foreach (DeferredRequestCreator deferredRequestCreator in m_TargetToDeferredRequestCreator.Values)
+            {
+                deferredRequestCreator.Cancel();
+            }
+
+            m_TargetToDeferredRequestCreator.Clear();
+            
             IsShutdown = true;
         }
 
@@ -88,11 +98,28 @@ namespace PicassoSharp
                 m_Dispatcher.DispatchCancel(action);
             }
             m_TargetToAction.Remove(target);
+
+            var imageViewTarget = target as ImageView;
+            if (imageViewTarget == null)
+                return;
+
+            DeferredRequestCreator deferredRequestCreator;
+            m_TargetToDeferredRequestCreator.TryGetValue(imageViewTarget, out deferredRequestCreator);
+            if (deferredRequestCreator != null)
+            {
+                deferredRequestCreator.Cancel();
+            }
+            m_TargetToDeferredRequestCreator.Remove(imageViewTarget);
         }
 
         private void LinkTargetToAction(Object target, Action action)
         {
             m_TargetToAction.Add(target, action);
+        }
+
+        internal void Defer(ImageView target, DeferredRequestCreator deferredRequestCreator)
+        {
+            m_TargetToDeferredRequestCreator.Add(target, deferredRequestCreator);
         }
 
         internal void EnqueueAndSubmit(Action action)

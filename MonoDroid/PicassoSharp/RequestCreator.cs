@@ -19,6 +19,7 @@ namespace PicassoSharp
 	    private System.Action m_OnFinishListener;
 	    private System.Action m_OnFailureListener;
 	    private System.Action m_OnSuccessListener;
+	    private bool m_Deferred;
 
 	    internal RequestCreator(Picasso picasso, Uri uri)
         {
@@ -37,17 +38,47 @@ namespace PicassoSharp
 			return this;
 		}
 
+	    public RequestCreator Transform(ITransformation transformation)
+	    {
+	        m_RequestBuilder.Tranform(transformation);
+            return this;
+	    }
+
 		public RequestCreator FadeMode(FadeMode mode)
 		{
 			m_FadeMode = mode;
 			return this;
 		}
 
-		public RequestCreator Fit(int width, int height)
+	    public RequestCreator Fit()
+	    {
+	        m_Deferred = true;
+            return this;
+	    }
+
+	    internal RequestCreator Unfit()
+	    {
+	        m_Deferred = false;
+            return this;
+	    }
+
+		public RequestCreator Resize(int width, int height)
 		{
 			m_RequestBuilder.Resize(width, height);
 			return this;
 		}
+
+        public RequestCreator CenterCrop()
+        {
+            m_RequestBuilder.CenterCrop();
+            return this;
+        }
+
+        public RequestCreator CenterInside()
+        {
+            m_RequestBuilder.CenterInside();
+            return this;
+        }
 
 		public RequestCreator PlaceholderDrawable(Drawable placeholderDrawable)
 		{
@@ -107,8 +138,19 @@ namespace PicassoSharp
 
             if (m_OnStartListener != null)
                 m_OnStartListener();
-
-            PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
+            
+            if (m_Deferred)
+            {
+                int measuredWidth = target.MeasuredWidth;
+                int measuredHeight = target.MeasuredHeight;
+                if (measuredWidth == 0 || measuredHeight == 0)
+                {
+                    PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
+                    m_Picasso.Defer(target, new DeferredRequestCreator(this, target));
+                    return;
+                }
+                m_RequestBuilder.Resize(measuredWidth, measuredHeight);
+            }
 
             Request request = m_RequestBuilder.Build();
             string key = Utils.CreateKey(request);
@@ -135,6 +177,8 @@ namespace PicassoSharp
                     return;
                 }
             }
+
+            PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
 
             m_Picasso.EnqueueAndSubmit(action);
         }

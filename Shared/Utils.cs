@@ -8,10 +8,50 @@ namespace PicassoSharp
 	    public const string ThreadPrefix = "Picasso-";
         public const string ThreadIdleName = ThreadPrefix + "Idle";
 
+	    private static readonly StringBuilder MainThreadKeyBuilder = new StringBuilder();
+
 	    public static string CreateKey(Request request)
-		{
-			return string.Format("{0};{1};{2};", request.Uri, request.TargetWidth, request.TargetHeight);
+	    {
+	        string key = CreateKey(request, MainThreadKeyBuilder);
+	        MainThreadKeyBuilder.Length = 0;
+            return key;
 		}
+
+	    public static string CreateKey(Request request, StringBuilder builder)
+	    {
+	        string path = request.Uri.ToString();
+            builder.EnsureCapacity(path.Length + 50);
+	        builder.Append(path);
+
+	        builder.Append(';');
+
+	        if (request.TargetWidth != 0)
+	        {
+	            builder.Append("resize:").Append(request.TargetWidth).Append('x').Append(request.TargetHeight);
+	            builder.Append(';');
+	        }
+
+	        if (request.CenterCrop)
+	        {
+	            builder.Append("centercrop;");
+	        }
+
+	        if (request.CenterInside)
+	        {
+	            builder.Append("centerinside;");
+	        }
+
+            if (request.Transformations != null)
+            {
+                for (int i = 0; i < request.Transformations.Count; i++)
+                {
+                    builder.Append(request.Transformations[i].Key);
+                    builder.Append(';');
+                }
+            }
+
+            return builder.ToString();
+	    }
 
 	    public static void CloseQuietly(Stream stream)
 	    {

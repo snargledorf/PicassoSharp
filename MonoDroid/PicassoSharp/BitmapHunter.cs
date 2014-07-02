@@ -188,7 +188,20 @@ namespace PicassoSharp
 
 			bitmap = Decode(Data);
 
-            // TODO Transforms
+		    if (bitmap != null)
+		    {
+		        if (Data.NeedsTransformation)
+		        {
+		            if (Data.NeedsMatrixTransform)
+		            {
+		                bitmap = TransformResult(Data, bitmap);
+		            }
+		            if (Data.HasCustomTransformations)
+		            {
+		                bitmap = ApplyCustomTransformations(Data.Transformations, bitmap);
+		            }
+		        }
+		    }
 
 			return bitmap;
 		}
@@ -253,6 +266,145 @@ namespace PicassoSharp
 	    {
             return false;
 	    }
+
+        private Bitmap ApplyCustomTransformations(List<ITransformation> transformations, Bitmap result)
+        {
+            if (result == null) throw new ArgumentNullException("result");
+
+            for (int i = 0; i < transformations.Count; i++)
+            {
+                ITransformation transformation = transformations[i];
+                Bitmap newResult = transformation.Transform(result);
+
+                if (newResult == null)
+                {
+                    StringBuilder builder = new StringBuilder() //
+                        .Append("Transformation ")
+                        .Append(transformation.Key)
+                        .Append(" returned null after ")
+                        .Append(i)
+                        .Append(" previous transformation(s).\n\nTransformation list:\n");
+                    foreach (ITransformation t in transformations)
+                    {
+                        builder.Append(t.Key).Append('\n');
+                    }
+                    Picasso.Handler.Post(() => {
+                                                   throw new NullPointerException(builder.ToString());
+                    });
+                    return null;
+                }
+
+                if (newResult == result && result.IsRecycled)
+                {
+                    Picasso.Handler.Post(() =>
+                    {
+                        throw new IllegalStateException("Transformation " +
+                                                        transformation.Key + " return input Bitmap but recycled it.");
+                    });
+                    return null;
+                }
+
+                // If the transformation returned a new bitmap ensure they recycled the original.
+                if (newResult != result && !result.IsRecycled)
+                {
+                    Picasso.Handler.Post(() =>
+                    {
+                        throw new IllegalStateException("Transformation "
+                                                        + transformation.Key
+                                                        + " mutated input Bitmap but failed to recycle the original.");
+                    });
+                    return null;
+                }
+
+                result = newResult;
+            }
+
+            return result;
+        }
+
+        static Bitmap TransformResult(Request data, Bitmap result)
+        {
+            int inWidth = result.Width;
+            int inHeight = result.Height;
+
+            int drawX = 0;
+            int drawY = 0;
+            int drawWidth = inWidth;
+            int drawHeight = inHeight;
+
+            var matrix = new Matrix();
+
+            if (data.NeedsMatrixTransform)
+            {
+                int targetWidth = data.TargetWidth;
+                int targetHeight = data.TargetHeight;
+
+//                float targetRotation = data.rotationDegrees;
+//                if (targetRotation != 0)
+//                {
+//                    if (data.hasRotationPivot)
+//                    {
+//                        matrix.setRotate(targetRotation, data.rotationPivotX, data.rotationPivotY);
+//                    }
+//                    else
+//                    {
+//                        matrix.setRotate(targetRotation);
+//                    }
+//                }
+
+                if (data.CenterCrop)
+                {
+                    float widthRatio = targetWidth / (float)inWidth;
+                    float heightRatio = targetHeight / (float)inHeight;
+                    float scale;
+                    if (widthRatio > heightRatio)
+                    {
+                        scale = widthRatio;
+                        int newSize = (int)Math.Ceiling(inHeight * (heightRatio / widthRatio));
+                        drawY = (inHeight - newSize) / 2;
+                        drawHeight = newSize;
+                    }
+                    else
+                    {
+                        scale = heightRatio;
+                        int newSize = (int)Math.Ceiling(inWidth * (widthRatio / heightRatio));
+                        drawX = (inWidth - newSize) / 2;
+                        drawWidth = newSize;
+                    }
+                    matrix.PreScale(scale, scale);
+                }
+                else if (data.CenterInside)
+                {
+                    float widthRatio = targetWidth / (float)inWidth;
+                    float heightRatio = targetHeight / (float)inHeight;
+                    float scale = widthRatio < heightRatio ? widthRatio : heightRatio;
+                    matrix.PreScale(scale, scale);
+                }
+                else if (targetWidth != 0 && targetHeight != 0 && (targetWidth != inWidth || targetHeight != inHeight))
+                {
+                    // If an explicit target size has been specified and they do not match the results bounds,
+                    // pre-scale the existing matrix appropriately.
+                    float sx = targetWidth / (float)inWidth;
+                    float sy = targetHeight / (float)inHeight;
+                    matrix.PreScale(sx, sy);
+                }
+            }
+
+//            if (exifRotation != 0)
+//            {
+//                matrix.preRotate(exifRotation);
+//            }
+
+            Bitmap newResult =
+                Bitmap.CreateBitmap(result, drawX, drawY, drawWidth, drawHeight, matrix, true);
+            if (newResult != result)
+            {
+                result.Recycle();
+                result = newResult;
+            }
+
+            return result;
+        }
 	}
 }
 

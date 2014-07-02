@@ -43,10 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AndroidUtils.cs" />
+    <Compile Include="DeferredRequestCreator.cs" />
     <Compile Include="Dispatcher.cs" />
     <Compile Include="FadeMode.cs" />
     <Compile Include="ImageViewAction.cs" />
     <Compile Include="ITarget.cs" />
+    <Compile Include="ITransformation.cs" />
     <Compile Include="PicassoDrawable.cs" />
     <Compile Include="PicassoExecutorService.cs" />
     <Compile Include="Action.cs" />
@@ -57,7 +59,9 @@
     <Compile Include="RequestCreator.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleBlurTransformation.cs" />
     <Compile Include="TargetAction.cs" />
+    <Compile Include="WeakHashtable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
