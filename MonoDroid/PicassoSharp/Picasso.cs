@@ -5,14 +5,8 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Widget;
-using Java.Lang;
-using Java.Lang.Ref;
 using Java.Util;
 using Java.Util.Concurrent;
-using Exception = System.Exception;
-using Object = System.Object;
-using Process = Android.OS.Process;
-using RequestWeakReference = PicassoSharp.Action.RequestWeakReference<Java.Lang.Object>;
 
 namespace PicassoSharp
 {
