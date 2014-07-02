@@ -7,6 +7,8 @@ namespace PicassoSharp
 	{
 	    public const string ThreadPrefix = "Picasso-";
         public const string ThreadIdleName = ThreadPrefix + "Idle";
+        public const int DefaultConnectTimeout = 15 * 1000;
+        public const int DefaultReadTimeout = 20 * 1000;
 
 	    private static readonly StringBuilder MainThreadKeyBuilder = new StringBuilder();
 

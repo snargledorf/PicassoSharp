@@ -61,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleBlurTransformation.cs" />
     <Compile Include="TargetAction.cs" />
+    <Compile Include="UrlConnectionDownloader.cs" />
     <Compile Include="WeakHashtable.cs" />
   </ItemGroup>
   <ItemGroup>

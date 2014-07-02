@@ -62,6 +62,16 @@ namespace PicassoSharp
 
         public RequestCreator Load(Uri uri)
         {
+            // TODO Remove this once the server has been updated!!!
+            if (uri.Scheme == Uri.UriSchemeFtp)
+            {
+                uri = new UriBuilder(uri)
+                {
+                    Scheme = Uri.UriSchemeHttp,
+                    Port = -1
+                }.Uri;
+            }
+
             return new RequestCreator(this, uri);
         }
 
@@ -266,7 +276,7 @@ namespace PicassoSharp
             {
                 if (m_Cache == null)
                 {
-                    int cacheSize = AndroidUtils.CalculateCacheSize(m_Context);
+                    int cacheSize = AndroidUtils.CalculateMemoryCacheSize(m_Context);
                     m_Cache = new LruCache<Bitmap>(cacheSize, AndroidUtils.SizeOfBitmap);
                 }
 
@@ -277,7 +287,7 @@ namespace PicassoSharp
 
                 if (m_Downloader == null)
                 {
-                    m_Downloader = new WebRequestDownloader();
+                    m_Downloader = new UrlConnectionDownloader(m_Context);
                 }
 
                 var dispatcher = new Dispatcher(m_Context, Handler, m_Service, m_Cache, m_Downloader);
