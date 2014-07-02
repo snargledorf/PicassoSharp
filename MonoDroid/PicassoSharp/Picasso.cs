@@ -35,11 +35,7 @@ namespace PicassoSharp
         private readonly ICache<Bitmap> m_Cache;
         private readonly Dispatcher m_Dispatcher;
         private readonly IListener m_Listener;
-        private readonly CleanupThread m_CleanupThread;
         private readonly ConditionalWeakTable<object, Action> m_TargetToAction;
-
-        public ReferenceQueue ReferenceQueue { get; private set; }
-
         private bool m_Disposed;
 
         public Context Context
@@ -55,9 +51,6 @@ namespace PicassoSharp
             m_Dispatcher = dispatcher;
             m_Listener = listener;
             m_TargetToAction = new ConditionalWeakTable<object, Action>();
-            ReferenceQueue = new ReferenceQueue();
-            m_CleanupThread = new CleanupThread(ReferenceQueue, Handler);
-            m_CleanupThread.Start();
         }
 
         public ICache<Bitmap> Cache
@@ -86,8 +79,6 @@ namespace PicassoSharp
                 return;
 
             m_Cache.Clear();
-
-            m_CleanupThread.Shutdown();
 
             m_Service.Shutdown();
 
@@ -206,50 +197,6 @@ namespace PicassoSharp
             }
 
             m_Disposed = true;
-        }
-
-        private class CleanupThread : Thread
-        {
-            private readonly ReferenceQueue m_ReferenceQueue;
-            private readonly Handler m_Handler;
-
-            internal CleanupThread(ReferenceQueue referenceQueue, Handler handler)
-            {
-                m_ReferenceQueue = referenceQueue;
-                m_Handler = handler;
-                Daemon = true;
-                Name = Utils.ThreadPrefix + "refQueue";
-            }
-
-            public override void Run()
-            {
-                Process.SetThreadPriority(ThreadPriority.Background);
-                while (true)
-                {
-                    try
-                    {
-                        var remove = (RequestWeakReference) m_ReferenceQueue.Remove();
-                        m_Handler.SendMessage(m_Handler.ObtainMessage(RequestGced, remove.Action));
-                    }
-                    catch (InterruptedException)
-                    {
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        m_Handler.Post(() =>
-                        {
-                            throw ex;
-                        });
-                        break;
-                    }
-                }
-            }
-
-            public void Shutdown()
-            {
-                Interrupt();
-            }
         }
 
         public static Picasso With(Context context)
