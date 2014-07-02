@@ -6,17 +6,8 @@ namespace PicassoSharp
 {
 	public class TargetAction : Action
 	{
-		public TargetAction(Picasso picasso, 
-		                    Target target, 
-		                    Request data,
-		                    bool skipCache,
-		                    bool noFade,
-		                    string key, 
-		                    Drawable errorDrawable,
-                            System.Action onSuccessListener,
-                            System.Action onFailureListener,
-                            System.Action onFinishListener)
-			: base(picasso, target, data, skipCache, noFade, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+		public TargetAction(Picasso picasso, ITarget target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, data, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 
@@ -27,14 +18,14 @@ namespace PicassoSharp
 			if (bitmap == null) {
 				throw new Exception(String.Format("Attempted to complete action with no result!\n{0}", this));
 			}
-			var target = this.Target as Target;
+			var target = this.Target as ITarget;
 			if (target != null)
 				target.OnImageLoaded(bitmap, Picasso, loadedFrom);
 		}
 
 	    protected override void OnError()
 		{
-			var target = this.Target as Target;
+			var target = this.Target as ITarget;
 			if (target != null)
 				target.OnImageFailed(ErrorDrawable);
 		}

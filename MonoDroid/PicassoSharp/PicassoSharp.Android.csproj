@@ -44,8 +44,9 @@
   <ItemGroup>
     <Compile Include="AndroidUtils.cs" />
     <Compile Include="Dispatcher.cs" />
+    <Compile Include="FadeMode.cs" />
     <Compile Include="ImageViewAction.cs" />
-    <Compile Include="Target.cs" />
+    <Compile Include="ITarget.cs" />
     <Compile Include="PicassoDrawable.cs" />
     <Compile Include="PicassoExecutorService.cs" />
     <Compile Include="Action.cs" />

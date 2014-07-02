@@ -119,7 +119,7 @@ namespace PicassoSharp
             CancelExistingRequest(target);
         }
 
-        public void CancelRequest(Target target)
+        public void CancelRequest(ITarget target)
         {
             CancelExistingRequest(target);
         }

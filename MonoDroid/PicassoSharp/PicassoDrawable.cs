@@ -15,10 +15,10 @@ namespace PicassoSharp
             imageView.SetImageDrawable(placeholderDrawable);
         }
 
-        internal static void SetBitmap(ImageView target, Context context, Bitmap bitmap, LoadedFrom loadedFrom, bool noFade)
+        internal static void SetBitmap(ImageView target, Context context, Bitmap bitmap, LoadedFrom loadedFrom, FadeMode fadeMode)
         {
             Drawable placeholder = target.Drawable;
-            PicassoDrawable drawable = new PicassoDrawable(context, bitmap, placeholder, loadedFrom, noFade);
+            var drawable = new PicassoDrawable(context, bitmap, placeholder, loadedFrom, fadeMode);
 
             target.SetImageDrawable(drawable);
         }
@@ -28,10 +28,11 @@ namespace PicassoSharp
         private long m_StartTimeMillis;
         private int m_Alpha = 0xFF;
 
-        private PicassoDrawable(Context context, Bitmap bitmap, Drawable placeholder, LoadedFrom loadedFrom, bool noFade)
+        private PicassoDrawable(Context context, Bitmap bitmap, Drawable placeholder, LoadedFrom loadedFrom, FadeMode fadeMode)
             : base(context.Resources, bitmap)
         {
-            bool fade = loadedFrom != LoadedFrom.Memory && !noFade;
+            bool fade = fadeMode == FadeMode.Always ||
+                        (loadedFrom != LoadedFrom.Memory && fadeMode == FadeMode.NotFromMemory);
             if (fade)
             {
                 m_Placeholder = placeholder;

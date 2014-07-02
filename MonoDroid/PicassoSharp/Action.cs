@@ -10,22 +10,22 @@ namespace PicassoSharp
 		private readonly Picasso m_Picasso;
 		private readonly Request m_Data;
 		private readonly bool m_SkipCache;
-		private readonly bool m_NoFade;
 		private readonly string m_Key;
+	    private readonly FadeMode m_FadeMode;
 		private readonly Drawable m_ErrorDrawable;
 	    private readonly System.Action m_OnSuccessListener;
 	    private readonly System.Action m_OnFailureListener;
 	    private readonly System.Action m_OnFinishListener;
 
-	    protected Action(Picasso picasso, Object target, Request data, bool skipCache, bool noFade, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+	    protected Action(Picasso picasso, object target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
             m_Target = new WeakReference<Object>(target);
 			m_Picasso = picasso;
 			m_Data = data;
 			m_Key = key;
 			m_SkipCache = skipCache;
-			m_NoFade = noFade;
 			m_ErrorDrawable = errorDrawable;
+	        m_FadeMode = fadeMode;
 	        m_OnSuccessListener = onSuccessListener;
 	        m_OnFailureListener = onFailureListener;
 	        m_OnFinishListener = onFinishListener;
@@ -87,11 +87,11 @@ namespace PicassoSharp
 			}
 		}
 
-		public bool NoFade
+		public FadeMode FadeMode
 		{
 			get
 			{
-				return m_NoFade;
+				return m_FadeMode;
 			}
 		}
 

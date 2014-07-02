@@ -11,7 +11,7 @@ namespace PicassoSharp
 		readonly Picasso m_Picasso;
 
 		bool m_SkipCache = false;
-		bool m_NoFade = false;
+		FadeMode m_FadeMode = PicassoSharp.FadeMode.NotFromMemory;
 
 		Drawable m_PlaceholderDrawable;
 		Drawable m_ErrorDrawable;
@@ -37,9 +37,9 @@ namespace PicassoSharp
 			return this;
 		}
 
-		public RequestCreator NoFade()
+		public RequestCreator FadeMode(FadeMode mode)
 		{
-			m_NoFade = true;
+			m_FadeMode = mode;
 			return this;
 		}
 
@@ -61,7 +61,7 @@ namespace PicassoSharp
 			return this;
 		}
 
-        public void Into(Target target)
+        public void Into(ITarget target)
         {
 			if (target == null)
 				throw new ArgumentNullException("target");
@@ -79,7 +79,7 @@ namespace PicassoSharp
 				target, 
 				request,
                 m_SkipCache,
-                m_NoFade,
+                m_FadeMode,
 				key,
 				m_ErrorDrawable, 
                 m_OnSuccessListener, 
@@ -118,7 +118,7 @@ namespace PicassoSharp
                 target,
                 request,
                 m_SkipCache,
-                m_NoFade,
+                m_FadeMode,
                 key,
                 m_ErrorDrawable,
                 m_OnSuccessListener,

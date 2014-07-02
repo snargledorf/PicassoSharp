@@ -3,24 +3,13 @@
 using Android.Widget;
 using Android.Graphics;
 using Android.Graphics.Drawables;
-using Android.Views.Animations;
 
 namespace PicassoSharp
 {
 	public class ImageViewAction : Action
 	{
-		public ImageViewAction(
-            Picasso picasso, 
-            ImageView target, 
-            Request data, 
-            bool skipCache,
-            bool noFade,
-            string key, 
-            Drawable errorDrawable,
-            System.Action onSuccessListener,
-            System.Action onFailureListener,
-            System.Action onFinishListener)
-			: base(picasso, target, data, skipCache, noFade, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+		public ImageViewAction(Picasso picasso, ImageView target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, data, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 
@@ -36,7 +25,7 @@ namespace PicassoSharp
 			if (target == null)
 				return;
 
-            PicassoDrawable.SetBitmap(target, Picasso.Context, bitmap, loadedFrom, NoFade);
+            PicassoDrawable.SetBitmap(target, Picasso.Context, bitmap, loadedFrom, FadeMode);
 		}
 
 	    protected override void OnError()
