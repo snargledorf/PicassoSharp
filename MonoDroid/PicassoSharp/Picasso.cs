@@ -62,7 +62,7 @@ namespace PicassoSharp
 
         public RequestCreator Load(Uri uri)
         {
-            // TODO Remove this once the server has been updated!!!
+#warning Remove this once the server has been updated!!!
             if (uri.Scheme == Uri.UriSchemeFtp)
             {
                 uri = new UriBuilder(uri)
