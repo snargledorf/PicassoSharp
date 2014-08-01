@@ -32,10 +32,9 @@ namespace PicassoSharp
 
         public void Add(TKey key, TValue value)
         {
+            Remove(key);
             m_InternalTable.Add(key, value);
-
-            int keyHash = key.GetHashCode();
-            m_Keys.Add(keyHash, new WeakReference<TKey>(key));
+            m_Keys[key.GetHashCode()] = new WeakReference<TKey>(key);
         }
 
         public bool ContainsKey(TKey key)
