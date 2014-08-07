@@ -1,4 +1,5 @@
 using Android;
+using Android.Annotation;
 using Android.Content;
 using Android.App;
 using Android.Graphics;
@@ -27,6 +28,28 @@ namespace PicassoSharp
             }
 
             return 1024*1024*memoryClass/7;
+        }
+
+        public static int MaxViewBitmapSize
+        {
+            get
+            {
+//                if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
+//                    return MaxViewBitmapSizeIcs;
+                return 2048;
+            }
+        }
+
+        [TargetApi(Value = (int)BuildVersionCodes.IceCreamSandwich)]
+        private static int MaxViewBitmapSizeIcs
+        {
+            get
+            {
+                // TODO This sometimes doesn't provide the correct max bitmap size
+                // Need to correct this behavior before it can be used
+                var c = new Canvas();
+                return c.MaximumBitmapHeight > c.MaximumBitmapWidth ? c.MaximumBitmapWidth : c.MaximumBitmapHeight;
+            }
         }
 
         internal class PicassoSharpThreadFactory : Object, IThreadFactory
