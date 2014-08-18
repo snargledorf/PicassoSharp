@@ -80,10 +80,15 @@ namespace PicassoSharp
                    Android.Content.PM.Permission.Granted;
         }
 
+        [TargetApi(Value = (int) BuildVersionCodes.JellyBeanMr1)]
         public static bool IsAirplaneModeOn(Context context)
         {
-            ContentResolver contentResolver = context.ContentResolver;
-            return Settings.System.GetInt(contentResolver, Settings.System.AirplaneModeOn, 0) != 0;
+            if (Build.VERSION.SdkInt < BuildVersionCodes.JellyBeanMr1)
+            {
+                return Settings.System.GetInt(context.ContentResolver, Settings.System.AirplaneModeOn, 0) != 0;
+            }
+
+            return Settings.Global.GetInt(context.ContentResolver, Settings.Global.AirplaneModeOn, 0) != 0;
         }
 
         public static int SizeOfBitmap(Bitmap bitmap)
@@ -112,7 +117,17 @@ namespace PicassoSharp
             try
             {
                 var statFs = new StatFs(cacheDir.AbsolutePath);
-                long available = ((long) statFs.BlockCount)*statFs.BlockSize;
+
+                long available = 0;
+                if (Build.VERSION.SdkInt < BuildVersionCodes.JellyBeanMr2)
+                {
+                    available = statFs.BlockCount*statFs.BlockSize;
+                }
+                else
+                {
+                    available = statFs.BlockCountLong * statFs.BlockSizeLong;
+                }
+
                 size = available/50;
             }
             catch (IllegalArgumentException) { }
