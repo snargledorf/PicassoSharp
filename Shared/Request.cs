@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Java.Lang;
 using Exception = System.Exception;
 
 namespace PicassoSharp
@@ -129,15 +128,15 @@ namespace PicassoSharp
             {
                 if (m_CenterInside && m_CenterCrop)
                 {
-                    throw new IllegalStateException("Center crop and center inside can not be used together.");
+                    throw new NotSupportedException("Center crop and center inside can not be used together.");
                 }
                 if (m_CenterCrop && m_TargetWidth == 0)
                 {
-                    throw new IllegalStateException("Center crop requires calling resize.");
+					throw new NotSupportedException("Center crop requires calling resize.");
                 }
                 if (m_CenterInside && m_TargetWidth == 0)
                 {
-                    throw new IllegalStateException("Center inside requires calling resize.");
+					throw new NotSupportedException("Center inside requires calling resize.");
                 }
 				return new Request(m_Uri, 
 				                   m_TargetWidth, 
