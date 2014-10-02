@@ -46,7 +46,7 @@
     <Compile Include="RequestCreator.cs" />
     <Compile Include="TargetAction.cs" />
     <Compile Include="UIImageViewSpinnerTarget.cs" />
-    <Compile Include="..\..\Shared\ITransformation.cs" />
+    <Compile Include="ITransformation.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
