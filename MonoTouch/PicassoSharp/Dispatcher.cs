@@ -39,15 +39,11 @@ namespace PicassoSharp
 	                    hunter.Attach(action);
 	                    return;
 	                }
-	            }
 
-	            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
-	            hunter.Run();
-
-	            lock (m_Lock)
-	            {
+		            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
+		            hunter.Run();
 	                m_Hunters.Add(action.Key, hunter);
-	            }
+				}
 	        });
 	    }
 
