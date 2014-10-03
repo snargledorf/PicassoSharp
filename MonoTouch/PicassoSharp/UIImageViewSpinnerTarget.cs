@@ -24,6 +24,7 @@ namespace PicassoSharp
         {
             ResetBackgroundColor();
             RemoveSpinner();
+			m_ImageView.Image = image;
         }
 
         public void OnImageFailed(UIImage errorImage)
