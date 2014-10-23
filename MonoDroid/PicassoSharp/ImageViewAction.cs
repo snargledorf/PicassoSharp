@@ -22,7 +22,7 @@ namespace PicassoSharp
 			}
 
 			var target = this.Target as ImageView;
-			if (target == null)
+            if (target == null || target.Handle == IntPtr.Zero)
 				return;
 
             PicassoDrawable.SetBitmap(target, Picasso.Context, bitmap, loadedFrom, FadeMode);
