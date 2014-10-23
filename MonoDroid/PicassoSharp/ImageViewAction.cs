@@ -31,7 +31,7 @@ namespace PicassoSharp
 	    protected override void OnError()
 	    {
             var target = this.Target as ImageView;
-            if (target == null)
+            if (target == null || target.Handle == IntPtr.Zero)
                 return;
 
 	        if (ErrorDrawable != null)
