@@ -19,7 +19,7 @@ namespace PicassoSharp
         public bool OnPreDraw()
         {
             ImageView target;
-            if (!m_Target.TryGetTarget(out target))
+            if (!m_Target.TryGetTarget(out target) || target.Handle == IntPtr.Zero)
                 return true;
 
             ViewTreeObserver vto = target.ViewTreeObserver;
