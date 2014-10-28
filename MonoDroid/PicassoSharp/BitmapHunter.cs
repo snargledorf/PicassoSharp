@@ -289,7 +289,7 @@ namespace PicassoSharp
                         builder.Append(t.Key).Append('\n');
                     }
                     Picasso.Handler.Post(() => {
-                                                   throw new NullPointerException(builder.ToString());
+                                                   throw new NullReferenceException(builder.ToString());
                     });
                     return null;
                 }
