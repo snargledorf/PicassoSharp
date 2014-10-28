@@ -12,7 +12,7 @@ namespace PicassoSharp
 {
 	abstract class BitmapHunter
 	{
-	    private static readonly ThreadLocal<StringBuilder> NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
+	    private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
         
 	    private readonly Picasso m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
@@ -303,7 +303,7 @@ namespace PicassoSharp
         {
             string name = data.Name;
 
-            StringBuilder builder = NameBuilder.Value;
+            StringBuilder builder = s_NameBuilder.Value;
             builder.EnsureCapacity(Utils.ThreadPrefix.Length + name.Length);
             builder.Insert(Utils.ThreadPrefix.Length, name);
 
