@@ -45,7 +45,6 @@
     <Compile Include="AndroidUtils.cs" />
     <Compile Include="DeferredRequestCreator.cs" />
     <Compile Include="Dispatcher.cs" />
-    <Compile Include="FadeMode.cs" />
     <Compile Include="ImageViewAction.cs" />
     <Compile Include="ITarget.cs" />
     <Compile Include="ITransformation.cs" />
