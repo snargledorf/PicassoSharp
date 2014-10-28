@@ -5,13 +5,13 @@ namespace PicassoSharp
 {
 	public sealed class RequestCreator
     {
-		readonly Request.Builder m_RequestBuilder;
-		readonly Picasso m_Picasso;
+        private readonly Request.Builder m_RequestBuilder;
+        private readonly Picasso m_Picasso;
 
-		bool m_SkipCache = false;
+        private bool m_SkipCache;
 
-		UIImage m_PlaceholderImage;
-        UIImage m_ErrorImage;
+        private UIImage m_PlaceholderImage;
+        private UIImage m_ErrorImage;
 
         private System.Action m_OnStartListener;
         private System.Action m_OnFinishListener;

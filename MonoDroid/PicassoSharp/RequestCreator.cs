@@ -7,19 +7,20 @@ namespace PicassoSharp
 {
 	public sealed class RequestCreator
     {
-		readonly Request.Builder m_RequestBuilder;
-		readonly Picasso m_Picasso;
+        private readonly Request.Builder m_RequestBuilder;
+        private readonly Picasso m_Picasso;
 
-		bool m_SkipCache = false;
-		FadeMode m_FadeMode = PicassoSharp.FadeMode.NotFromMemory;
+        private bool m_SkipCache = false;
+        private FadeMode m_FadeMode = PicassoSharp.FadeMode.NotFromMemory;
+        private bool m_Deferred;
 
-		Drawable m_PlaceholderDrawable;
-		Drawable m_ErrorDrawable;
+        private Drawable m_PlaceholderDrawable;
+        private Drawable m_ErrorDrawable;
+
 	    private System.Action m_OnStartListener;
 	    private System.Action m_OnFinishListener;
 	    private System.Action m_OnFailureListener;
 	    private System.Action m_OnSuccessListener;
-	    private bool m_Deferred;
 
 	    internal RequestCreator(Picasso picasso, Uri uri)
         {
