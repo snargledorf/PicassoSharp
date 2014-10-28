@@ -59,7 +59,7 @@ namespace PicassoSharp
 			return this;
 		}
 
-        public RequestCreator ErrorDrawable(UIImage errorImage)
+        public RequestCreator ErrorImage(UIImage errorImage)
 		{
 			m_ErrorImage = errorImage;
 			return this;
