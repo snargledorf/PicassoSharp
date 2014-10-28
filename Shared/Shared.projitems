@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FadeMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IDownloader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IllegalStateException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoadedFrom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LruCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Request.cs" />
