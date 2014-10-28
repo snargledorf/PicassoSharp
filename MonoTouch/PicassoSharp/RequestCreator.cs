@@ -35,7 +35,23 @@ namespace PicassoSharp
 			return this;
 		}
 
+        public RequestCreator CenterCrop()
+        {
+            m_RequestBuilder.CenterCrop();
+            return this;
+        }
 
+        public RequestCreator CenterInside()
+        {
+            m_RequestBuilder.CenterInside();
+            return this;
+        }
+
+        public RequestCreator Resize(int width, int height)
+        {
+            m_RequestBuilder.Resize(width, height);
+            return this;
+        }
 
 		public RequestCreator PlaceholderImage(UIImage placeholderImage)
 		{

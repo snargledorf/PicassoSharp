@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MonoTouch.UIKit;
 using Exception = System.Exception;
 
 namespace PicassoSharp
@@ -10,6 +11,8 @@ namespace PicassoSharp
 		{
 			get;
 		}
+
+	    UIImage Transform(UIImage source);
 	}
 
 }
