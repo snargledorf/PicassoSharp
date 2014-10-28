@@ -9,7 +9,6 @@ namespace PicassoSharp
 		readonly Picasso m_Picasso;
 
 		bool m_SkipCache = false;
-		bool m_NoFade = false;
 
 		UIImage m_PlaceholderImage;
         UIImage m_ErrorImage;
@@ -36,17 +35,7 @@ namespace PicassoSharp
 			return this;
 		}
 
-//		public RequestCreator NoFade()
-//		{
-//			m_NoFade = true;
-//			return this;
-//		}
 
-//		public RequestCreator Fit(int width, int height)
-//		{
-//			m_RequestBuilder.Resize(width, height);
-//			return this;
-//		}
 
 		public RequestCreator PlaceholderImage(UIImage placeholderImage)
 		{
