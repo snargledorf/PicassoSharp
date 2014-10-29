@@ -223,24 +223,37 @@ namespace PicassoSharp
             return options != null && options.InJustDecodeBounds;
         }
 
-        protected static void CalculateInSampleSize(int targetWidth, int targetHeight, BitmapFactory.Options options)
+        protected static void CalculateInSampleSize(int targetWidth, int targetHeight, BitmapFactory.Options options, Request request)
         {
-            CalculateInSampleSize(targetWidth, targetHeight, options.OutWidth, options.OutHeight, options);
+            CalculateInSampleSize(targetWidth, targetHeight, options.OutWidth, options.OutHeight, options, request);
         }
 
-        protected static void CalculateInSampleSize(int reqWidth, int reqHeight, int width, int height,
-            BitmapFactory.Options options)
-        {
-            int sampleSize = 1;
-            if (height > reqHeight || width > reqWidth)
-            {
-                int heightRatio = (int)Math.Round((height / (decimal)reqHeight));
-                int widthRatio = (int)Math.Round((width / (decimal)reqWidth));
-                sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-            }
-            options.InSampleSize = sampleSize;
-            options.InJustDecodeBounds = false;
-        }
+	    protected static void CalculateInSampleSize(int reqWidth, int reqHeight, int width, int height,
+	        BitmapFactory.Options options, Request request)
+	    {
+	        int sampleSize = 1;
+	        if (height > reqHeight || width > reqWidth)
+	        {
+	            if (reqHeight == 0)
+	            {
+	                sampleSize = (int) Math.Floor((float) width/(float) reqWidth);
+	            }
+	            else if (reqWidth == 0)
+	            {
+	                sampleSize = (int) Math.Floor((float) height/(float) reqHeight);
+	            }
+	            else
+	            {
+	                int heightRatio = (int) Math.Floor((float) height/(float) reqHeight);
+	                int widthRatio = (int) Math.Floor((float) width/(float) reqWidth);
+	                sampleSize = request.CenterInside
+	                    ? Math.Max(heightRatio, widthRatio)
+	                    : Math.Min(heightRatio, widthRatio);
+	            }
+	        }
+	        options.InSampleSize = sampleSize;
+	        options.InJustDecodeBounds = false;
+	    }
 
         private void UpdateThreadName(Request data)
         {

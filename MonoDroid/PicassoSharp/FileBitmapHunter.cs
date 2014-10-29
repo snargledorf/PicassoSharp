@@ -30,7 +30,7 @@ namespace PicassoSharp
             if (calculateSize)
             {
                 BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
-                CalculateInSampleSize(Data.TargetWidth, Data.TargetHeight, options);
+                CalculateInSampleSize(Data.TargetWidth, Data.TargetHeight, options, Data);
             }
             return BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
         }
