@@ -268,6 +268,10 @@ namespace PicassoSharp
 
         public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, IDownloader downloader)
 		{
+            if (action.Data.ResourceId > 0)
+            {
+                return new ResourceBitmapHunter(picasso, action, dispatcher, cache);
+            }
 		    if (action.Data.Uri.IsFile)
 			{
 				return new FileBitmapHunter(picasso, action, dispatcher, cache);

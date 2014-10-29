@@ -21,9 +21,17 @@ namespace PicassoSharp
 
 	    public static string CreateKey(Request request, StringBuilder builder)
 	    {
-	        string path = request.Uri.ToString();
-            builder.EnsureCapacity(path.Length + 50);
-	        builder.Append(path);
+	        if (request.Uri != null)
+	        {
+	            string path = request.Uri.ToString();
+	            builder.EnsureCapacity(path.Length + 50);
+	            builder.Append(path);
+	        }
+	        else
+	        {
+                builder.EnsureCapacity(50);
+                builder.Append(request.ResourceId);
+	        }
 
 	        builder.Append(';');
 

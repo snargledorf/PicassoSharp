@@ -56,6 +56,7 @@
     <Compile Include="BitmapHunter.cs" />
     <Compile Include="NetworkBitmapHunter.cs" />
     <Compile Include="RequestCreator.cs" />
+    <Compile Include="ResourceBitmapHunter.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleBlurTransformation.cs" />

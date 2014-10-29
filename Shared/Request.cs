@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Java.Lang;
 using Exception = System.Exception;
 
 namespace PicassoSharp
 {
 	public class Request
     {
-	    private Request(Uri uri, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations)
+	    private Request(Uri uri, int resourceId, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations)
         {
 	        Transformations = transformations;
 	        TargetWidth = targetWidth;
@@ -14,6 +15,7 @@ namespace PicassoSharp
 	        CenterCrop = centerCrop;
 	        CenterInside = centerInside;
 	        Uri = uri;
+	        ResourceId = resourceId;
         }
 
 		public Uri Uri 
@@ -22,7 +24,9 @@ namespace PicassoSharp
 			private set;
         }
 
-        public int TargetWidth
+	    public int ResourceId { get; private set; }
+
+	    public int TargetWidth
 		{
 			get;
 			private set;
@@ -41,7 +45,12 @@ namespace PicassoSharp
 
 	    public string Name
 	    {
-	        get { return Uri.AbsolutePath; }
+	        get
+	        {
+	            if (Uri != null)
+	                return Uri.AbsolutePath;
+	            return Integer.ToHexString(ResourceId);
+	        }
 	    }
 
 	    public bool HasSize { get { return TargetWidth != 0; } }
@@ -51,15 +60,31 @@ namespace PicassoSharp
 
 	    public class Builder
         {
-			private readonly Uri m_Uri;
+            private readonly Uri m_Uri;
+            private int m_ResourceId;
 			private int m_TargetHeight;
 			private int m_TargetWidth;
 	        private List<ITransformation> m_Transformations;
 	        private bool m_CenterCrop;
 	        private bool m_CenterInside;
 
+	        public Builder(int resourceId)
+	        {
+	            if (resourceId == 0)
+	            {
+	                throw new ArgumentException("resourceId must not be 0", "resourceId");
+	            }
+
+	            m_ResourceId = resourceId;
+	        }
+
 	        public Builder(Uri uri)
             {
+	            if (uri == null)
+	            {
+	                throw new ArgumentNullException("uri");
+	            }
+
 				m_Uri = uri;
             }
 
@@ -138,12 +163,14 @@ namespace PicassoSharp
                 {
 					throw new NotSupportedException("Center inside requires calling resize.");
                 }
-				return new Request(m_Uri, 
-				                   m_TargetWidth, 
-				                   m_TargetHeight,
-                                   m_CenterCrop,
-                                   m_CenterInside,
-                                   m_Transformations);
+			    return new Request(
+                    m_Uri,
+			        m_ResourceId,
+			        m_TargetWidth,
+			        m_TargetHeight,
+			        m_CenterCrop,
+			        m_CenterInside,
+			        m_Transformations);
             }
         }
     }

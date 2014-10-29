@@ -33,6 +33,17 @@ namespace PicassoSharp
 			m_Picasso = picasso;
 		}
 
+	    internal RequestCreator(Picasso picasso, int resourceId)
+        {
+            if (picasso.IsShutdown)
+            {
+                throw new Exception("Picasso instance shutdown. Cannot submit new requests");
+            }
+
+	        m_RequestBuilder = new Request.Builder(resourceId);
+	        m_Picasso = picasso;
+	    }
+
 		public RequestCreator SkipCache()
 		{
 			m_SkipCache = true;
