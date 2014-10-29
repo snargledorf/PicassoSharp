@@ -16,7 +16,7 @@ namespace PicassoSharp
 {
 	abstract class BitmapHunter : Object, IRunnable
 	{
-        private static readonly ThreadLocal<StringBuilder> NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
+        private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
 
 	    private readonly Picasso m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
@@ -255,11 +255,11 @@ namespace PicassoSharp
 	        options.InJustDecodeBounds = false;
 	    }
 
-        private void UpdateThreadName(Request data)
+	    private void UpdateThreadName(Request data)
         {
             string name = data.Name;
 
-            StringBuilder builder = NameBuilder.Value;
+            StringBuilder builder = s_NameBuilder.Value;
             builder.EnsureCapacity(Utils.ThreadPrefix.Length + name.Length);
             builder.Insert(Utils.ThreadPrefix.Length, name);
 
@@ -295,7 +295,7 @@ namespace PicassoSharp
 
                 if (newResult == null)
                 {
-                    StringBuilder builder = new StringBuilder() //
+                    StringBuilder builder = new StringBuilder()
                         .Append("Transformation ")
                         .Append(transformation.Key)
                         .Append(" returned null after ")
@@ -305,8 +305,9 @@ namespace PicassoSharp
                     {
                         builder.Append(t.Key).Append('\n');
                     }
-                    Picasso.Handler.Post(() => {
-                                                   throw new NullReferenceException(builder.ToString());
+                    Picasso.Handler.Post(() =>
+                    {
+                        throw new NullReferenceException(builder.ToString());
                     });
                     return null;
                 }
