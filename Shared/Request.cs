@@ -60,7 +60,7 @@ namespace PicassoSharp
 	        }
 	    }
 
-	    public bool HasSize { get { return TargetWidth != 0; } }
+        public bool HasSize { get { return TargetWidth != 0 || TargetHeight != 0; } }
 	    public bool NeedsTransformation { get { return NeedsMatrixTransform || HasCustomTransformations; } }
 	    public bool NeedsMatrixTransform { get { return HasSize || RotationDegrees != 0; } }
         public bool HasCustomTransformations { get { return Transformations != null; } }
