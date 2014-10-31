@@ -90,6 +90,12 @@ namespace PicassoSharp
 			protected set;
 		}
 
+	    public int ExifRotation
+	    {
+	        get; 
+            protected set; 
+        }
+
 	    public IFuture Future { get; set; }
 
 	    public bool Cancelled 
@@ -190,11 +196,11 @@ namespace PicassoSharp
 
 		    if (bitmap != null)
 		    {
-		        if (Data.NeedsTransformation)
+		        if (Data.NeedsTransformation || ExifRotation != 0)
 		        {
-		            if (Data.NeedsMatrixTransform)
+                    if (Data.NeedsMatrixTransform || ExifRotation != 0)
 		            {
-		                bitmap = TransformResult(Data, bitmap);
+		                bitmap = TransformResult(Data, bitmap, ExifRotation);
 		            }
 		            if (Data.HasCustomTransformations)
 		            {
@@ -340,7 +346,7 @@ namespace PicassoSharp
             return result;
         }
 
-        static Bitmap TransformResult(Request data, Bitmap result)
+        static Bitmap TransformResult(Request data, Bitmap result, int exifRotation)
         {
             int inWidth = result.Width;
             int inHeight = result.Height;
@@ -408,10 +414,10 @@ namespace PicassoSharp
                 }
             }
 
-//            if (exifRotation != 0)
-//            {
-//                matrix.preRotate(exifRotation);
-//            }
+            if (exifRotation != 0)
+            {
+                matrix.PreRotate(exifRotation);
+            }
 
             Bitmap newResult =
                 Bitmap.CreateBitmap(result, drawX, drawY, drawWidth, drawHeight, matrix, true);
