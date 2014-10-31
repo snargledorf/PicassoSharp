@@ -150,7 +150,7 @@ namespace PicassoSharp
 
             target.OnPrepareLoad(m_PlaceholderDrawable);
 
-			Request request = m_RequestBuilder.Build();
+	        Request request = CreateRequest();
 			string key = Utils.CreateKey(request);
 
 			Action action = new TargetAction(
@@ -200,7 +200,7 @@ namespace PicassoSharp
                 m_RequestBuilder.Resize(measuredWidth, measuredHeight);
             }
 
-            Request request = m_RequestBuilder.Build();
+            Request request = CreateRequest();
             string key = Utils.CreateKey(request);
 
             var action = new ImageViewAction(
@@ -231,6 +231,10 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
+        private Request CreateRequest()
+        {
+            return m_Picasso.TransformRequest(m_Data.Build());
+        }
     }
 }
 

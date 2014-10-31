@@ -440,5 +440,18 @@ namespace PicassoSharp
                 }
             }
         }
+
+        internal Request TransformRequest(Request request)
+        {
+            Request transformed = m_RequestTransformer.TransformRequest(request);
+            if (transformed == null)
+            {
+                throw new IllegalStateException("Request transformer "
+                    + m_RequestTransformer.GetType().Name
+                    + " returned null for "
+                    + request);
+            }
+            return transformed;
+        }
     }
 }
