@@ -68,7 +68,7 @@ namespace PicassoSharp
 
 	    public class Builder
         {
-            private readonly Uri m_Uri;
+            private Uri m_Uri;
             private int m_ResourceId;
 			private int m_TargetHeight;
 			private int m_TargetWidth;
@@ -82,23 +82,42 @@ namespace PicassoSharp
 
 	        public Builder(int resourceId)
 	        {
-	            if (resourceId == 0)
-	            {
-	                throw new ArgumentException("resourceId must not be 0", "resourceId");
-	            }
-
-	            m_ResourceId = resourceId;
+	            SetResourceId(resourceId);
 	        }
 
 	        public Builder(Uri uri)
+	        {
+	            SetUri(uri);
+	        }
+
+            public Builder(Uri uri, int resourceId)
             {
+                m_Uri = uri;
+	            m_ResourceId = resourceId;
+	        }
+
+	        public Builder SetUri(Uri uri)
+	        {
 	            if (uri == null)
 	            {
 	                throw new ArgumentNullException("uri");
 	            }
+	            m_Uri = uri;
+	            m_ResourceId = 0;
+	            return this;
+	        }
 
-				m_Uri = uri;
-            }
+	        public Builder SetResourceId(int resourceId)
+	        {
+	            if (resourceId == 0)
+	            {
+	                throw new ArgumentException("Image resource ID may not be 0.");
+	            }
+	            m_ResourceId = resourceId;
+	            m_Uri = null;
+	            return this;
+	        }
+
 
 			public Builder Resize(int targetWidth, int targetHeight)
             {
