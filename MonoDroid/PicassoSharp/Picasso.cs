@@ -4,6 +4,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Widget;
+using Java.IO;
 using Java.Util;
 using Java.Util.Concurrent;
 using IList = System.Collections.IList;
@@ -106,6 +107,15 @@ namespace PicassoSharp
         public RequestCreator Load(int resourceId)
         {
             return new RequestCreator(this, null, resourceId);
+        }
+
+        public RequestCreator Load(File file)
+        {
+            if (file == null)
+            {
+                return new RequestCreator(this, null, 0);
+            }
+            return Load(file.AbsolutePath);
         }
 
         public bool IsShutdown { get; private set; }
