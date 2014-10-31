@@ -116,7 +116,31 @@ namespace PicassoSharp
 			return this;
 		}
 
-        public void Into(ITarget target)
+        public RequestCreator OnStartListener(System.Action action)
+        {
+            m_OnStartListener = action;
+            return this;
+        }
+
+        public RequestCreator OnSuccessListener(System.Action action)
+        {
+            m_OnSuccessListener = action;
+            return this;
+        }
+
+        public RequestCreator OnFailureListener(System.Action action)
+        {
+            m_OnFailureListener = action;
+            return this;
+        }
+
+        public RequestCreator OnFinishListener(System.Action action)
+        {
+            m_OnFinishListener = action;
+            return this;
+        }
+
+	    public void Into(ITarget target)
         {
 			if (target == null)
 				throw new ArgumentNullException("target");
@@ -207,29 +231,6 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
-	    public RequestCreator OnStartListener(System.Action action)
-	    {
-            m_OnStartListener = action;
-            return this;
-	    }
-
-	    public RequestCreator OnSuccessListener(System.Action action)
-	    {
-            m_OnSuccessListener = action;
-            return this;
-	    }
-
-	    public RequestCreator OnFailureListener(System.Action action)
-	    {
-	        m_OnFailureListener = action;
-	        return this;
-	    }
-
-	    public RequestCreator OnFinishListener(System.Action action)
-	    {
-	        m_OnFinishListener = action;
-            return this;
-	    }
     }
 }
 
