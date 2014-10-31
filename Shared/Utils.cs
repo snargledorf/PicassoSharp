@@ -11,13 +11,14 @@ namespace PicassoSharp
         public const int DefaultConnectTimeout = 15 * 1000;
         public const int DefaultReadTimeout = 20 * 1000;
 
-	    private static readonly StringBuilder MainThreadKeyBuilder = new StringBuilder();
         private const int KeyPadding = 50; // Cloned from exact science
 
-	    public static string CreateKey(Request request)
+	    private static readonly StringBuilder s_MainThreadKeyBuilder = new StringBuilder();
+
+	    public static string CreateKey(Request data)
 	    {
-	        string key = CreateKey(request, MainThreadKeyBuilder);
-	        MainThreadKeyBuilder.Length = 0;
+	        string key = CreateKey(data, s_MainThreadKeyBuilder);
+	        s_MainThreadKeyBuilder.Length = 0;
             return key;
 		}
 
