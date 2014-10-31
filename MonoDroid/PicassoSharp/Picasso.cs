@@ -173,21 +173,24 @@ namespace PicassoSharp
 
         internal void EnqueueAndSubmit(Action action)
         {
-            var cachedImage = m_Cache.Get(action.Key);
-            if (cachedImage != null && !cachedImage.IsRecycled)
+            var target = action.Target;
+            if (target != null)
             {
-                CompleteAction(cachedImage, action, LoadedFrom.Memory);
+                CancelExistingRequest(target);
+                LinkTargetToAction(target, action);
             }
-            else
-            {
-                var target = action.Target;
-                if (target != null)
-                {
-                    CancelExistingRequest(target);
-                    LinkTargetToAction(target, action);
-                }
-                m_Dispatcher.DispatchSubmit(action);
-            }
+            Submit(action);
+        }
+
+        internal void Submit(Action action)
+        {
+            m_Dispatcher.DispatchSubmit(action);
+        }
+
+        internal Bitmap QuickMemoryCacheCheck(String key)
+        {
+            Bitmap cached = m_Cache.Get(key);
+            return cached;
         }
 
         public void CancelRequest(ImageView target)

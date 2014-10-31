@@ -166,8 +166,8 @@ namespace PicassoSharp
                 m_OnFinishListener);
 
 			if (!m_SkipCache)
-            {
-                Bitmap cachedImage = m_Picasso.Cache.Get(key);
+			{
+                Bitmap cachedImage = m_Picasso.QuickMemoryCacheCheck(key);
 				if (cachedImage != null && !cachedImage.IsRecycled)
                 {
                     m_Picasso.CancelRequest(target);
@@ -217,7 +217,7 @@ namespace PicassoSharp
 
             if (!m_SkipCache)
             {
-                Bitmap cachedImage = m_Picasso.Cache.Get(key);
+                Bitmap cachedImage = m_Picasso.QuickMemoryCacheCheck(key);
                 if (cachedImage != null && !cachedImage.IsRecycled)
                 {
                     m_Picasso.CancelRequest(target);
