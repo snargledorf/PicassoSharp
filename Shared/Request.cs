@@ -7,7 +7,7 @@ namespace PicassoSharp
 {
 	public class Request
     {
-        private Request(Uri uri, int resourceId, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations, float rotationDegrees, float rotationPivotX, float rotationPivotY, bool hasRotationPivot)
+        private Request(Uri uri, int resourceId, string stableKey, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations, float rotationDegrees, float rotationPivotX, float rotationPivotY, bool hasRotationPivot)
         {
 	        Transformations = transformations;
             RotationDegrees = rotationDegrees;
@@ -20,6 +20,7 @@ namespace PicassoSharp
 	        CenterInside = centerInside;
 	        Uri = uri;
 	        ResourceId = resourceId;
+            StableKey = stableKey;
         }
 
 		public Uri Uri 
@@ -29,6 +30,7 @@ namespace PicassoSharp
         }
 
 	    public int ResourceId { get; private set; }
+	    public string StableKey { get; private set; }
 
 	    public int TargetWidth
 		{
@@ -79,6 +81,7 @@ namespace PicassoSharp
 	        private float m_RotationPivotX;
 	        private float m_RotationPivotY;
 	        private bool m_HasRotationPivot;
+	        private string m_StableKey;
 
 	        public Builder(int resourceId)
 	        {
@@ -128,6 +131,11 @@ namespace PicassoSharp
 	            return this;
 	        }
 
+	        public Builder StableKey(string stableKey)
+	        {
+	            m_StableKey = stableKey;
+	            return this;
+	        }
 
 			public Builder Resize(int targetWidth, int targetHeight)
             {
@@ -231,6 +239,7 @@ namespace PicassoSharp
 			    return new Request(
                     m_Uri,
 			        m_ResourceId,
+                    m_StableKey,
 			        m_TargetWidth,
 			        m_TargetHeight,
 			        m_CenterCrop,

@@ -105,6 +105,12 @@ namespace PicassoSharp
 			return this;
 		}
 
+        public RequestCreator StableKey(string stableKey)
+        {
+            m_Data.StableKey(stableKey);
+            return this;
+        }
+
         public RequestCreator OnStartListener(System.Action action)
         {
             m_OnStartListener = action;

@@ -12,6 +12,7 @@ namespace PicassoSharp
         public const int DefaultReadTimeout = 20 * 1000;
 
 	    private static readonly StringBuilder MainThreadKeyBuilder = new StringBuilder();
+        private const int KeyPadding = 50; // Cloned from exact science
 
 	    public static string CreateKey(Request request)
 	    {
@@ -20,43 +21,48 @@ namespace PicassoSharp
             return key;
 		}
 
-	    public static string CreateKey(Request request, StringBuilder builder)
+	    public static string CreateKey(Request data, StringBuilder builder)
 	    {
-	        if (request.Uri != null)
+	        if (!string.IsNullOrEmpty(data.StableKey))
 	        {
-	            string path = request.Uri.ToString();
-	            builder.EnsureCapacity(path.Length + 50);
+	            builder.EnsureCapacity(data.StableKey.Length + KeyPadding);
+	            builder.Append(data.StableKey);
+	        } 
+            else if (data.Uri != null)
+	        {
+	            string path = data.Uri.ToString();
+                builder.EnsureCapacity(path.Length + KeyPadding);
 	            builder.Append(path);
 	        }
 	        else
 	        {
-                builder.EnsureCapacity(50);
-                builder.Append(request.ResourceId);
+                builder.EnsureCapacity(KeyPadding);
+                builder.Append(data.ResourceId);
 	        }
 
 	        builder.Append(';');
 
-	        if (request.TargetWidth != 0)
+	        if (data.TargetWidth != 0)
 	        {
-	            builder.Append("resize:").Append(request.TargetWidth).Append('x').Append(request.TargetHeight);
+	            builder.Append("resize:").Append(data.TargetWidth).Append('x').Append(data.TargetHeight);
 	            builder.Append(';');
 	        }
 
-	        if (request.CenterCrop)
+	        if (data.CenterCrop)
 	        {
 	            builder.Append("centercrop;");
 	        }
 
-	        if (request.CenterInside)
+	        if (data.CenterInside)
 	        {
 	            builder.Append("centerinside;");
 	        }
 
-            if (request.Transformations != null)
+            if (data.Transformations != null)
             {
-                for (int i = 0; i < request.Transformations.Count; i++)
+                for (int i = 0; i < data.Transformations.Count; i++)
                 {
-                    builder.Append(request.Transformations[i].Key);
+                    builder.Append(data.Transformations[i].Key);
                     builder.Append(';');
                 }
             }
