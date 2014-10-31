@@ -57,6 +57,11 @@ namespace PicassoSharp
             get { return m_Cache; }
         }
 
+        internal Dispatcher Dispatcher
+        {
+            get { return m_Dispatcher; }
+        }
+
         private Picasso(Context context, ICache<Bitmap> cache, IRequestTransformer requestTransformer, List<RequestHandler> extraRequestHandlers, IExecutorService service, Dispatcher dispatcher, IListener listener)
         {
             m_Context = context;
