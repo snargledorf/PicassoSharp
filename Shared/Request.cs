@@ -42,11 +42,11 @@ namespace PicassoSharp
 			private set;
         }
 
-	    public bool CenterCrop { get; set; }
-	    public bool CenterInside { get; set; }
+	    public bool CenterCrop { get; private set; }
+	    public bool CenterInside { get; private set; }
         public float RotationDegrees { get; private set; }
-	    public float RotationPivotX { get; set; }
-	    public float RotationPivotY { get; set; }
+	    public float RotationPivotX { get; private set; }
+	    public float RotationPivotY { get; private set; }
 
 	    public List<ITransformation> Transformations { get; private set; }
 
