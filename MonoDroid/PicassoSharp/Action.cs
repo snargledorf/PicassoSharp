@@ -19,7 +19,7 @@ namespace PicassoSharp
 
 	    protected Action(Picasso picasso, object target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
-            m_Target = new WeakReference<Object>(target);
+            m_Target = target == null ? null : new WeakReference<Object>(target);
 			m_Picasso = picasso;
 			m_Request = request;
 			m_Key = key;
