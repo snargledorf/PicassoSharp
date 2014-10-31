@@ -96,6 +96,16 @@ namespace PicassoSharp
 	            m_ResourceId = resourceId;
 	        }
 
+	        public bool HasImage
+	        {
+	            get { return m_Uri != null || m_ResourceId != 0; }
+	        }
+
+	        public bool HasSize
+	        {
+	            get { return m_TargetHeight != 0 || m_TargetWidth != 0; }
+	        }
+
 	        public Builder SetUri(Uri uri)
 	        {
 	            if (uri == null)
