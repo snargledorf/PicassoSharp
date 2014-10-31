@@ -96,7 +96,7 @@ namespace PicassoSharp
 
         public RequestCreator Load(Uri uri)
         {
-            return new RequestCreator(this, uri);
+            return new RequestCreator(this, uri, 0);
         }
 
         public RequestCreator Load(int resourceId)

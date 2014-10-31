@@ -22,7 +22,7 @@ namespace PicassoSharp
 	    private System.Action m_OnFailureListener;
 	    private System.Action m_OnSuccessListener;
 
-	    internal RequestCreator(Picasso picasso, Uri uri)
+	    internal RequestCreator(Picasso picasso, Uri uri, int resourceId)
         {
 		    if (picasso.IsShutdown)
 		    {
