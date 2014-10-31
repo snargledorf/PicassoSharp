@@ -8,7 +8,7 @@ namespace PicassoSharp
     {
         private readonly WeakReference<Object> m_Target;
 		private readonly Picasso m_Picasso;
-		private readonly Request m_Data;
+		private readonly Request m_Request;
 		private readonly bool m_SkipCache;
 		private readonly string m_Key;
 	    private readonly FadeMode m_FadeMode;
@@ -17,11 +17,11 @@ namespace PicassoSharp
 	    private readonly System.Action m_OnFailureListener;
 	    private readonly System.Action m_OnFinishListener;
 
-	    protected Action(Picasso picasso, object target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+	    protected Action(Picasso picasso, object target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
             m_Target = new WeakReference<Object>(target);
 			m_Picasso = picasso;
-			m_Data = data;
+			m_Request = request;
 			m_Key = key;
 			m_SkipCache = skipCache;
 			m_ErrorDrawable = errorDrawable;
@@ -49,11 +49,11 @@ namespace PicassoSharp
             }
         }
 
-        public Request Data
+        public Request Request
         {
             get
 			{
-				return m_Data;
+				return m_Request;
 			}
         }
 

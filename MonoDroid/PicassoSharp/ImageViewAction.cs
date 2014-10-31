@@ -8,8 +8,8 @@ namespace PicassoSharp
 {
 	public class ImageViewAction : Action
 	{
-		public ImageViewAction(Picasso picasso, ImageView target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
-			: base(picasso, target, data, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+		public ImageViewAction(Picasso picasso, ImageView target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, request, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 

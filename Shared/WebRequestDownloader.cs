@@ -7,13 +7,9 @@ namespace PicassoSharp
 {
     class WebRequestDownloader : IDownloader
     {
-        public WebRequestDownloader()
-        {
-        }
-
         public Response Load(Uri uri, bool localCacheOnly)
         {
-            var request = WebRequest.Create(uri);
+            var request = new HttpWebRequest(uri);
 
             // Currently Xamarin doesn't support WebRequest caching
             // This is here so that once they enable it we are all ready set up
@@ -28,12 +24,28 @@ namespace PicassoSharp
                 request.CachePolicy = cachePolicy;
             }
 
-            WebResponse responce = request.GetResponse();
+            var responce = request.GetResponse() as HttpWebResponse;
+            if (responce == null)
+            {
+                throw new ResponseException("Response came back as null");
+            }
+
+            if (responce.StatusCode >= HttpStatusCode.Ambiguous)
+            {
+                request.Abort();
+                throw new ResponseException(responce.StatusCode + " " + responce.StatusDescription);
+            }
 
             Stream stream = responce.GetResponseStream();
+            long contentLength = responce.ContentLength;
             bool cached = responce.IsFromCache;
 
-            return new Response(stream, cached);
+            return new Response(stream, cached, contentLength);
+        }
+
+        public void Shutdown()
+        {
+            // No Op
         }
     }
 }

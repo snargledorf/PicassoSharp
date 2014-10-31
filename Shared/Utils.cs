@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text;
+using Android.Content;
 
 namespace PicassoSharp
 {
@@ -88,6 +89,12 @@ namespace PicassoSharp
 	            }
 	            return ms.ToArray();
 	        }
+	    }
+
+	    public static IDownloader CreateDefaultDownloader(Context context)
+	    {
+            // For now this just returns a UrlConnectionDownloader
+            return new UrlConnectionDownloader(context);
 	    }
 	}
 }

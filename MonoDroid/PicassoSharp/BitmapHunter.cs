@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -14,26 +15,36 @@ using Thread = Java.Lang.Thread;
 
 namespace PicassoSharp
 {
-	abstract class BitmapHunter : Object, IRunnable
-	{
-        private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
+	class BitmapHunter : Object, IRunnable
+    {
+        /*
+        * Global lock for bitmap decoding to ensure that we are only are decoding one at a time. Since
+        * this will only ever happen in background threads we help avoid excessive memory thrashing as
+        * well as potential OOMs. Shamelessly stolen from Volley.
+        */
+        private static readonly object s_DecodeLock = new object();
+
+        private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));  
+        private static readonly ErrorHandler s_ErrorHandler = new ErrorHandler();
 
 	    private readonly Picasso m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<Bitmap> m_Cache;
+	    private readonly RequestHandler m_RequestHandler;
 	    private readonly bool m_SkipCache;
 		private readonly Request m_Data;
 		private readonly string m_Key;
 
-	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache)
+	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, RequestHandler requestHandler)
         {
             Action = action;
-			m_Data = action.Data;
+			m_Data = action.Request;
 			m_Key = action.Key;
 			m_Picasso = picasso;
             m_Dispatcher = dispatcher;
 			m_Cache = cache;
-	        m_SkipCache = action.SkipCache;
+            m_RequestHandler = requestHandler;
+            m_SkipCache = action.SkipCache;
         }
 
 	    public Action Action { get; private set; }
@@ -175,12 +186,10 @@ namespace PicassoSharp
                 Thread.CurrentThread().Name = Utils.ThreadIdleName;
             }
         }
-
-	    protected abstract Bitmap Decode(Request data);
-
+        
 		Bitmap Hunt()
 		{
-			Bitmap bitmap;
+		    Bitmap bitmap = null;
 
 			if (!m_SkipCache)
 			{
@@ -192,74 +201,34 @@ namespace PicassoSharp
 				}
 			}
 
-			bitmap = Decode(Data);
+		    RequestHandler.Result result = m_RequestHandler.Load(Data);
+		    if (result != null)
+		    {
+		        bitmap = result.Bitmap;
+		        LoadedFrom = result.LoadedFrom;
+		        ExifRotation = result.ExifOrientation;
+		    }
 
 		    if (bitmap != null)
 		    {
 		        if (Data.NeedsTransformation || ExifRotation != 0)
 		        {
-                    if (Data.NeedsMatrixTransform || ExifRotation != 0)
-		            {
-		                bitmap = TransformResult(Data, bitmap, ExifRotation);
-		            }
-		            if (Data.HasCustomTransformations)
-		            {
-		                bitmap = ApplyCustomTransformations(Data.Transformations, bitmap);
+		            lock (s_DecodeLock)
+                    {
+                        if (Data.NeedsMatrixTransform || ExifRotation != 0)
+                        {
+                            bitmap = TransformResult(Data, bitmap, ExifRotation);
+                        }
+                        if (Data.HasCustomTransformations)
+                        {
+                            bitmap = ApplyCustomTransformations(Data.Transformations, bitmap);
+                        }
 		            }
 		        }
 		    }
 
 			return bitmap;
 		}
-
-        protected static BitmapFactory.Options CreateBitmapOptions(Request data)
-        {
-            bool justBounds = data.HasSize;
-            BitmapFactory.Options options = null;
-            if (justBounds)
-            {
-                options = new BitmapFactory.Options();
-                options.InJustDecodeBounds = data.HasSize;
-            }
-            return options;
-        }
-
-        protected static bool RequiresInSampleSize(BitmapFactory.Options options)
-        {
-            return options != null && options.InJustDecodeBounds;
-        }
-
-        protected static void CalculateInSampleSize(int targetWidth, int targetHeight, BitmapFactory.Options options, Request request)
-        {
-            CalculateInSampleSize(targetWidth, targetHeight, options.OutWidth, options.OutHeight, options, request);
-        }
-
-	    protected static void CalculateInSampleSize(int reqWidth, int reqHeight, int width, int height,
-	        BitmapFactory.Options options, Request request)
-	    {
-	        int sampleSize = 1;
-	        if (height > reqHeight || width > reqWidth)
-	        {
-	            if (reqHeight == 0)
-	            {
-	                sampleSize = (int) Math.Floor((float) width/(float) reqWidth);
-	            }
-	            else if (reqWidth == 0)
-	            {
-	                sampleSize = (int) Math.Floor((float) height/(float) reqHeight);
-	            }
-	            else
-	            {
-	                int heightRatio = (int) Math.Floor((float) height/(float) reqHeight);
-	                int widthRatio = (int) Math.Floor((float) width/(float) reqWidth);
-	                sampleSize = request.CenterInside
-	                    ? Math.Max(heightRatio, widthRatio)
-	                    : Math.Min(heightRatio, widthRatio);
-	            }
-	        }
-	        options.InSampleSize = sampleSize;
-	        options.InJustDecodeBounds = false;
-	    }
 
 	    private void UpdateThreadName(Request data)
         {
@@ -272,17 +241,22 @@ namespace PicassoSharp
             Thread.CurrentThread().Name = builder.ToString();
         }
 
-        public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, IDownloader downloader)
+        public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache)
 		{
-            if (action.Data.ResourceId > 0)
+            Request request = action.Request;
+            IList requestHandlers = picasso.RequestHandlers;
+
+            // Index-based loop to avoid allocating an iterator.
+            for (int i = 0, count = requestHandlers.Count; i < count; i++)
             {
-                return new ResourceBitmapHunter(picasso, action, dispatcher, cache);
+                var requestHandler = requestHandlers[i] as RequestHandler;
+                if (requestHandler != null && requestHandler.CanHandleRequest(request))
+                {
+                    return new BitmapHunter(picasso, action, dispatcher, cache, requestHandler);
+                }
             }
-		    if (action.Data.Uri.IsFile)
-			{
-				return new FileBitmapHunter(picasso, action, dispatcher, cache);
-			}
-		    return new NetworkBitmapHunter(picasso, action, dispatcher, cache, downloader);
+
+            return new BitmapHunter(picasso, action, dispatcher, cache, s_ErrorHandler);
 		}
 
 	    public virtual bool ShouldRetry(bool airplaneMode, NetworkInfo info)
@@ -429,6 +403,19 @@ namespace PicassoSharp
 
             return result;
         }
+
+	    private class ErrorHandler : RequestHandler
+	    {
+	        public override bool CanHandleRequest(Request data)
+	        {
+	            return true;
+	        }
+
+	        public override Result Load(Request data)
+	        {
+                throw new IllegalStateException("Unrecognized type of request: " + data);
+	        }
+	    }
 	}
 }
 

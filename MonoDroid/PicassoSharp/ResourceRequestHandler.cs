@@ -1,18 +1,26 @@
+using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 
 namespace PicassoSharp
 {
-    internal class ResourceBitmapHunter : BitmapHunter
+    internal class ResourceRequestHandler : RequestHandler
     {
-        public ResourceBitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache)
-            : base(picasso, action, dispatcher, cache)
+        private readonly Context m_Context;
+
+        public ResourceRequestHandler(Context context)
         {
+            m_Context = context;
         }
 
-        protected override Bitmap Decode(Request data)
+        public override bool CanHandleRequest(Request data)
         {
-            return DecodeResource(Picasso.Context.Resources, data.ResourceId, data);
+            return data.ResourceId != 0;
+        }
+
+        public override Result Load(Request data)
+        {
+            return new Result(DecodeResource(m_Context.Resources, data.ResourceId, data), LoadedFrom.Disk);
         }
 
         private static Bitmap DecodeResource(Resources resources, int id, Request data)

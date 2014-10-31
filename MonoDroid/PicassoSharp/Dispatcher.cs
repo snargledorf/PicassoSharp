@@ -39,6 +39,11 @@ namespace PicassoSharp
 	    private bool m_AirplaneMode;
 	    private NetworkInfo m_NetworkInfo;
 
+	    public IDownloader Downloader
+	    {
+	        get { return m_Downloader; }
+	    }
+
 	    internal Dispatcher(Context context, Handler mainThreadHandler, IExecutorService service, ICache<Bitmap> cache, IDownloader downloader)
         {
             m_DipatcherThread = new DispatcherThread();
@@ -111,7 +116,7 @@ namespace PicassoSharp
                 return;
 	        }
 
-            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
+            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache);
             hunter.Future = m_Service.Submit(hunter);
             m_Hunters.Add(action.Key, hunter);
 	    }

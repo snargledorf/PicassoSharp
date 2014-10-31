@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Widget;
 using Java.Util;
 using Java.Util.Concurrent;
+using IList = System.Collections.IList;
 
 namespace PicassoSharp
 {
@@ -15,6 +15,11 @@ namespace PicassoSharp
         public interface IListener
         {
             void OnImageLoadFailed(Picasso picasso, Uri uri, Exception exception);
+        }
+
+        public interface IRequestTransformer
+        {
+            Request TransformRequest(Request request);
         }
 
         private const int RequestGced = 0;
@@ -27,6 +32,8 @@ namespace PicassoSharp
         private readonly Context m_Context;
         private readonly IExecutorService m_Service;
         private readonly ICache<Bitmap> m_Cache;
+        private readonly IRequestTransformer m_RequestTransformer;
+        private readonly IList m_RequestHandlers;
         private readonly Dispatcher m_Dispatcher;
         private readonly IListener m_Listener;
         private readonly WeakHashtable<object, Action> m_TargetToAction;
@@ -39,10 +46,33 @@ namespace PicassoSharp
             get { return m_Context; }
         }
 
-        private Picasso(Context context, ICache<Bitmap> cache, IExecutorService service, Dispatcher dispatcher, IListener listener)
+        public IList RequestHandlers
+        {
+            get { return m_RequestHandlers; }
+        }
+
+        private Picasso(Context context, ICache<Bitmap> cache, IRequestTransformer requestTransformer, List<RequestHandler> extraRequestHandlers, IExecutorService service, Dispatcher dispatcher, IListener listener)
         {
             m_Context = context;
             m_Cache = cache;
+            m_RequestTransformer = requestTransformer;
+
+            const int builtInHandlersCount = 3;
+            int extraHandlersCount = extraRequestHandlers != null ? extraRequestHandlers.Count : 0;
+            var allRequestHandlers = new List<RequestHandler>(builtInHandlersCount + extraHandlersCount);
+
+            // ResourceRequestHandler needs to be the first in the list to avoid
+            // forcing other RequestHandlers to perform null checks on request.uri
+            // to cover the (request.resourceId != 0) case.
+            allRequestHandlers.Add(new ResourceRequestHandler(context));
+            if (extraRequestHandlers != null)
+            {
+                allRequestHandlers.AddRange(allRequestHandlers);
+            }
+            allRequestHandlers.Add(new FileRequestHandler());
+            allRequestHandlers.Add(new NetworkRequestHandler(dispatcher.Downloader));
+            m_RequestHandlers = Collections.UnmodifiableList(allRequestHandlers);
+
             m_Service = service;
             m_Dispatcher = dispatcher;
             m_Listener = listener;
@@ -247,6 +277,8 @@ namespace PicassoSharp
             private IExecutorService m_Service;
             private IDownloader m_Downloader;
             private IListener m_Listener;
+            private IRequestTransformer m_RequestTransformer;
+            private List<RequestHandler> m_RequestHandlers;
 
             public Builder(Context context)
             {
@@ -255,25 +287,90 @@ namespace PicassoSharp
 
             public Builder Cache(ICache<Bitmap> cache)
             {
+                if (cache == null)
+                {
+                    throw new ArgumentNullException("cache");
+                }
+                if (m_Cache != null)
+                {
+                    throw new IllegalStateException("Cache already set");
+                }
                 m_Cache = cache;
                 return this;
             }
 
             public Builder Executor(IExecutorService service)
             {
+                if (service == null)
+                {
+                    throw new ArgumentNullException("service");
+                }
+                if (m_Service != null)
+                {
+                    throw new IllegalStateException("Executor service already set");
+                }
                 m_Service = service;
                 return this;
             }
 
             public Builder Downloader(IDownloader downloader)
             {
+                if (downloader == null)
+                {
+                    throw new ArgumentNullException("downloader");
+                }
+                if (m_Downloader != null)
+                {
+                    throw new IllegalStateException("Downloader already set");
+                }
+
                 m_Downloader = downloader;
                 return this;
             }
 
             public Builder Listener(IListener listener)
             {
+                if (listener == null)
+                {
+                    throw new ArgumentNullException("listener");
+                }
+                if (m_Listener != null)
+                {
+                    throw new IllegalStateException("Listener already set");
+                }
                 m_Listener = listener;
+                return this;
+            }
+
+            public Builder RequestTransformer(IRequestTransformer requestTransformer)
+            {
+                if (requestTransformer == null)
+                {
+                    throw new ArgumentNullException("requestTransformer");
+                }
+                if (m_RequestTransformer != null)
+                {
+                    throw new IllegalStateException("Request transformer already set");
+                }
+                m_RequestTransformer = requestTransformer;
+                return this;
+            }
+
+            public Builder AddRequestHandler(RequestHandler requestHandler)
+            {
+                if (requestHandler == null)
+                {
+                    throw new ArgumentNullException("requestHandler");
+                }
+                if (m_RequestHandlers == null)
+                {
+                    m_RequestHandlers = new List<RequestHandler>();
+                }
+                if (m_RequestHandlers.Contains(requestHandler))
+                {
+                    throw new IllegalStateException("RequestHandler already registered.");
+                }
+                m_RequestHandlers.Add(requestHandler);
                 return this;
             }
 
@@ -292,12 +389,25 @@ namespace PicassoSharp
 
                 if (m_Downloader == null)
                 {
-                    m_Downloader = new UrlConnectionDownloader(m_Context);
+                    m_Downloader = Utils.CreateDefaultDownloader(m_Context);
+                }
+
+                if (m_RequestTransformer == null)
+                {
+                    m_RequestTransformer = new DummyRequestTransformer();
                 }
 
                 var dispatcher = new Dispatcher(m_Context, Handler, m_Service, m_Cache, m_Downloader);
 
-                return new Picasso(m_Context, m_Cache, m_Service, dispatcher, m_Listener);
+                return new Picasso(m_Context, m_Cache, m_RequestTransformer, m_RequestHandlers, m_Service, dispatcher, m_Listener);
+            }
+
+            public class DummyRequestTransformer : IRequestTransformer
+            {
+                public Request TransformRequest(Request request)
+                {
+                    return request;
+                }
             }
         }
 

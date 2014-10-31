@@ -11,7 +11,8 @@ namespace PicassoSharp
     {
         private const string ResponseSource = "X-Android-Response-Source";
 
-        private static readonly object m_Lock = new object();
+        private static readonly object s_Lock = new object();
+
         private volatile object m_Cache;
 
         private readonly Context m_Context;
@@ -55,9 +56,18 @@ namespace PicassoSharp
                 }
             }
 
+            long contentLength = connection.GetHeaderFieldInt("Content-Length", -1);
             bool fromCache = ParseResponseSourceHeader(connection.GetHeaderField(ResponseSource));
 
-            return new Response(connection.InputStream, fromCache);
+            return new Response(connection.InputStream, fromCache, contentLength);
+        }
+
+        public void Shutdown()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich && m_Cache != null)
+            {
+                ResponseCacheIcs.Close(m_Cache);
+            }
         }
 
         private bool ParseResponseSourceHeader(string header)
@@ -95,7 +105,7 @@ namespace PicassoSharp
             {
                 try
                 {
-                    lock (m_Lock)
+                    lock (s_Lock)
                     {
                         if (m_Cache == null)
                         {
@@ -105,6 +115,7 @@ namespace PicassoSharp
                 }
                 catch (IOException)
                 {
+                    // Ignored
                 }
             }
         }
@@ -121,6 +132,18 @@ namespace PicassoSharp
                     cache = HttpResponseCache.Install(cacheDir, maxSize);
                 }
                 return cache;
+            }
+
+            public static void Close(object cache)
+            {
+                try
+                {
+                    ((HttpResponseCache)cache).Close();
+                }
+                catch (IOException)
+                {
+                    // Ignored
+                }
             }
         }
     }

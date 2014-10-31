@@ -6,8 +6,8 @@ namespace PicassoSharp
 {
 	public class TargetAction : Action
 	{
-		public TargetAction(Picasso picasso, ITarget target, Request data, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
-			: base(picasso, target, data, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+		public TargetAction(Picasso picasso, ITarget target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, request, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 
