@@ -190,9 +190,9 @@ namespace PicassoSharp
             
             if (m_Deferred)
             {
-                int measuredWidth = target.MeasuredWidth;
-                int measuredHeight = target.MeasuredHeight;
-                if (measuredWidth == 0 || measuredHeight == 0)
+                int width = target.Width;
+                int height = target.Height;
+                if (width == 0 || height == 0)
                 {
                     PicassoDrawable.SetPlaceholder(target, m_PlaceholderDrawable);
                     m_Picasso.Defer(target, new DeferredRequestCreator(this, target));
