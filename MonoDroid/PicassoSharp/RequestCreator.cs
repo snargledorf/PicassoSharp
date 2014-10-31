@@ -190,6 +190,11 @@ namespace PicassoSharp
             
             if (m_Deferred)
             {
+                if (m_Data.HasSize)
+                {
+                    throw new IllegalStateException("Fit cannot be used with resize.");
+                }
+
                 int width = target.Width;
                 int height = target.Height;
                 if (width == 0 || height == 0)
