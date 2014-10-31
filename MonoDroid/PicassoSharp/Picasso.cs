@@ -87,6 +87,10 @@ namespace PicassoSharp
 
         public RequestCreator Load(string path)
         {
+            if (path.Trim().Length == 0)
+            {
+                throw new ArgumentException("Path must not be empty");
+            }
             return Load(new Uri(path));
         }
 
