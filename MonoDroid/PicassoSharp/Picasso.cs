@@ -101,7 +101,7 @@ namespace PicassoSharp
 
         public RequestCreator Load(int resourceId)
         {
-            return new RequestCreator(this, resourceId);
+            return new RequestCreator(this, null, resourceId);
         }
 
         public bool IsShutdown { get; private set; }

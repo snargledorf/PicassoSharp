@@ -7,7 +7,7 @@ namespace PicassoSharp
 {
 	public sealed class RequestCreator
     {
-        private readonly Request.Builder m_RequestBuilder;
+        private readonly Request.Builder m_Data;
         private readonly Picasso m_Picasso;
 
         private bool m_SkipCache;
@@ -29,20 +29,9 @@ namespace PicassoSharp
 		        throw new Exception("Picasso instance shutdown. Cannot submit new requests");
 		    }
 
-			m_RequestBuilder = new Request.Builder(uri);
+			m_Data = new Request.Builder(uri, resourceId);
 			m_Picasso = picasso;
 		}
-
-	    internal RequestCreator(Picasso picasso, int resourceId)
-        {
-            if (picasso.IsShutdown)
-            {
-                throw new Exception("Picasso instance shutdown. Cannot submit new requests");
-            }
-
-	        m_RequestBuilder = new Request.Builder(resourceId);
-	        m_Picasso = picasso;
-	    }
 
 		public RequestCreator SkipCache()
 		{
@@ -52,7 +41,7 @@ namespace PicassoSharp
 
 	    public RequestCreator Transform(ITransformation transformation)
 	    {
-	        m_RequestBuilder.Tranform(transformation);
+	        m_Data.Tranform(transformation);
             return this;
 	    }
 
@@ -88,19 +77,19 @@ namespace PicassoSharp
 
 		public RequestCreator Resize(int width, int height)
 		{
-			m_RequestBuilder.Resize(width, height);
+			m_Data.Resize(width, height);
 			return this;
 		}
 
         public RequestCreator CenterCrop()
         {
-            m_RequestBuilder.CenterCrop();
+            m_Data.CenterCrop();
             return this;
         }
 
         public RequestCreator CenterInside()
         {
-            m_RequestBuilder.CenterInside();
+            m_Data.CenterInside();
             return this;
         }
 
@@ -197,7 +186,7 @@ namespace PicassoSharp
                     m_Picasso.Defer(target, new DeferredRequestCreator(this, target));
                     return;
                 }
-                m_RequestBuilder.Resize(measuredWidth, measuredHeight);
+                m_Data.Resize(width, height);
             }
 
             Request request = CreateRequest();
