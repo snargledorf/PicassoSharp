@@ -10,7 +10,7 @@ namespace PicassoSharp
         private readonly Request.Builder m_RequestBuilder;
         private readonly Picasso m_Picasso;
 
-        private bool m_SkipCache = false;
+        private bool m_SkipCache;
         private FadeMode m_FadeMode = PicassoSharp.FadeMode.NotFromMemory;
         private bool m_Deferred;
 
