@@ -45,6 +45,8 @@
     <Compile Include="AndroidUtils.cs" />
     <Compile Include="DeferredRequestCreator.cs" />
     <Compile Include="Dispatcher.cs" />
+    <Compile Include="FetchAction.cs" />
+    <Compile Include="GetAction.cs" />
     <Compile Include="ImageViewAction.cs" />
     <Compile Include="ITarget.cs" />
     <Compile Include="ITransformation.cs" />

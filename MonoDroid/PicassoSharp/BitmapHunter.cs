@@ -187,7 +187,7 @@ namespace PicassoSharp
             }
         }
         
-		Bitmap Hunt()
+		internal Bitmap Hunt()
 		{
 		    Bitmap bitmap = null;
 

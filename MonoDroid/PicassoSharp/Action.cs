@@ -39,7 +39,7 @@ namespace PicassoSharp
 			}
 		}
 
-        public Object Target
+        public virtual Object Target
         {
             get
             {

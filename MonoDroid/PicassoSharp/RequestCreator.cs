@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Widget;
@@ -134,6 +135,42 @@ namespace PicassoSharp
             m_OnFinishListener = action;
             return this;
         }
+
+	    public Bitmap Get()
+	    {
+	        if (m_Deferred)
+	        {
+	            throw new IllegalStateException("Fit cannot be used with get");
+	        }
+
+	        if (!m_Data.HasImage)
+	        {
+	            return null;
+	        }
+
+	        Request request = CreateRequest();
+	        string key = Utils.CreateKey(request, new StringBuilder());
+
+	        Action getAction = new GetAction(m_Picasso, request, m_SkipCache, key);
+	        return BitmapHunter.ForRequest(m_Picasso, getAction, m_Picasso.Dispatcher, m_Picasso.Cache).Hunt();
+	    }
+
+	    public void Fetch()
+	    {
+	        if (m_Deferred)
+	        {
+	            throw new IllegalStateException("Fit cannot be used with fetch");
+	        }
+
+	        if (m_Data.HasImage)
+	        {
+	            Request request = CreateRequest();
+	            string key = Utils.CreateKey(request, new StringBuilder());
+
+	            Action fetchAction = new FetchAction(m_Picasso, request, m_SkipCache, key);
+	            m_Picasso.EnqueueAndSubmit(fetchAction);
+	        }
+	    }
 
 	    public void Into(ITarget target)
         {
