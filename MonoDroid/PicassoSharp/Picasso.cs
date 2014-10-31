@@ -41,14 +41,19 @@ namespace PicassoSharp
         
         private bool m_Disposed;
 
-        public Context Context
+        internal Context Context
         {
             get { return m_Context; }
         }
 
-        public IList RequestHandlers
+        internal IList RequestHandlers
         {
             get { return m_RequestHandlers; }
+        }
+
+        internal ICache<Bitmap> Cache
+        {
+            get { return m_Cache; }
         }
 
         private Picasso(Context context, ICache<Bitmap> cache, IRequestTransformer requestTransformer, List<RequestHandler> extraRequestHandlers, IExecutorService service, Dispatcher dispatcher, IListener listener)
@@ -78,11 +83,6 @@ namespace PicassoSharp
             m_Listener = listener;
             m_TargetToAction = new WeakHashtable<object, Action>();
             m_TargetToDeferredRequestCreator = new WeakHashtable<ImageView, DeferredRequestCreator>();
-        }
-
-        public ICache<Bitmap> Cache
-        {
-            get { return m_Cache; }
         }
 
         public RequestCreator Load(string path)
