@@ -179,6 +179,12 @@ namespace PicassoSharp
             if (target == null)
                 throw new ArgumentNullException("target");
 
+            if (!m_Data.HasImage)
+            {
+                m_Picasso.CancelRequest(target);
+                return;
+            }
+            
             if (m_OnStartListener != null)
                 m_OnStartListener();
             
