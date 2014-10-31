@@ -96,16 +96,6 @@ namespace PicassoSharp
 
         public RequestCreator Load(Uri uri)
         {
-#warning Remove this once the server has been updated!!!
-            if (uri.Scheme == Uri.UriSchemeFtp)
-            {
-                uri = new UriBuilder(uri)
-                {
-                    Scheme = Uri.UriSchemeHttp,
-                    Port = -1
-                }.Uri;
-            }
-
             return new RequestCreator(this, uri);
         }
 
