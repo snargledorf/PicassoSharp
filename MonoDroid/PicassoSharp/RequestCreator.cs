@@ -62,6 +62,18 @@ namespace PicassoSharp
 			return this;
 		}
 
+        public RequestCreator Rotate(float degrees)
+        {
+            m_Data.Rotate(degrees);
+            return this;
+        }
+
+        public RequestCreator Rotate(float degrees, float pivotX, float pivotY)
+        {
+            m_Data.Rotate(degrees, pivotX, pivotY);
+            return this;
+        }
+
 	    public RequestCreator Fit()
 	    {
 	        m_Deferred = true;

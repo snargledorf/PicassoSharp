@@ -7,10 +7,14 @@ namespace PicassoSharp
 {
 	public class Request
     {
-	    private Request(Uri uri, int resourceId, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations)
+        private Request(Uri uri, int resourceId, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation> transformations, float rotationDegrees, float rotationPivotX, float rotationPivotY, bool hasRotationPivot)
         {
 	        Transformations = transformations;
-	        TargetWidth = targetWidth;
+            RotationDegrees = rotationDegrees;
+            RotationPivotX = rotationPivotX;
+            RotationPivotY = rotationPivotY;
+            HasRotationPivot = hasRotationPivot;
+            TargetWidth = targetWidth;
 			TargetHeight = targetHeight;
 	        CenterCrop = centerCrop;
 	        CenterInside = centerInside;
@@ -40,6 +44,9 @@ namespace PicassoSharp
 
 	    public bool CenterCrop { get; set; }
 	    public bool CenterInside { get; set; }
+        public float RotationDegrees { get; private set; }
+	    public float RotationPivotX { get; set; }
+	    public float RotationPivotY { get; set; }
 
 	    public List<ITransformation> Transformations { get; private set; }
 
@@ -55,8 +62,9 @@ namespace PicassoSharp
 
 	    public bool HasSize { get { return TargetWidth != 0; } }
 	    public bool NeedsTransformation { get { return NeedsMatrixTransform || HasCustomTransformations; } }
-	    public bool NeedsMatrixTransform { get { return TargetWidth != 0; } }
-	    public bool HasCustomTransformations { get { return Transformations != null; } }
+	    public bool NeedsMatrixTransform { get { return HasSize || RotationDegrees != 0; } }
+        public bool HasCustomTransformations { get { return Transformations != null; } }
+        public bool HasRotationPivot { get; private set; }
 
 	    public class Builder
         {
@@ -67,6 +75,10 @@ namespace PicassoSharp
 	        private List<ITransformation> m_Transformations;
 	        private bool m_CenterCrop;
 	        private bool m_CenterInside;
+	        private float m_RotationDegrees;
+	        private float m_RotationPivotX;
+	        private float m_RotationPivotY;
+	        private bool m_HasRotationPivot;
 
 	        public Builder(int resourceId)
 	        {
@@ -147,6 +159,30 @@ namespace PicassoSharp
 	        {
 	            m_CenterInside = false;
                 return this;
+            }
+
+            public Builder Rotate(float degrees)
+            {
+                m_RotationDegrees = degrees;
+                return this;
+            }
+
+            public Builder Rotate(float degrees, float pivotX, float pivotY)
+            {
+                m_RotationDegrees = degrees;
+                m_RotationPivotX = pivotX;
+                m_RotationPivotY = pivotY;
+                m_HasRotationPivot = true;
+                return this;
+            }
+
+	        public Builder ClearRotation()
+	        {
+	            m_RotationDegrees = 0;
+	            m_RotationPivotX = 0;
+	            m_RotationPivotY = 0;
+	            m_HasRotationPivot = false;
+	            return this;
 	        }
 
 			public Request Build()
@@ -170,7 +206,11 @@ namespace PicassoSharp
 			        m_TargetHeight,
 			        m_CenterCrop,
 			        m_CenterInside,
-			        m_Transformations);
+			        m_Transformations,
+                    m_RotationDegrees,
+                    m_RotationPivotX,
+                    m_RotationPivotY,
+                    m_HasRotationPivot);
             }
         }
     }

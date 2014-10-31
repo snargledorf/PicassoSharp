@@ -337,18 +337,18 @@ namespace PicassoSharp
                 int targetWidth = data.TargetWidth;
                 int targetHeight = data.TargetHeight;
 
-//                float targetRotation = data.rotationDegrees;
-//                if (targetRotation != 0)
-//                {
-//                    if (data.hasRotationPivot)
-//                    {
-//                        matrix.setRotate(targetRotation, data.rotationPivotX, data.rotationPivotY);
-//                    }
-//                    else
-//                    {
-//                        matrix.setRotate(targetRotation);
-//                    }
-//                }
+                float targetRotation = data.RotationDegrees;
+                if (targetRotation != 0)
+                {
+                    if (data.HasRotationPivot)
+                    {
+                        matrix.SetRotate(targetRotation, data.RotationPivotX, data.RotationPivotY);
+                    }
+                    else
+                    {
+                        matrix.SetRotate(targetRotation);
+                    }
+                }
 
                 if (data.CenterCrop)
                 {
