@@ -1,5 +1,4 @@
 using System.IO;
-using System.Runtime.Remoting.Messaging;
 using Android.Graphics;
 
 namespace PicassoSharp
@@ -7,9 +6,6 @@ namespace PicassoSharp
     internal class NetworkRequestHandler : RequestHandler
     {
         private const int DefaultRetryCount = 2;
-
-        private const string SchemaHttp = "http";
-        private const string SchemaHttps = "https";
         
         private readonly IDownloader m_Downloader;
         private int m_RetryCount;
@@ -37,7 +33,7 @@ namespace PicassoSharp
         public override bool CanHandleRequest(Request data)
         {
             string schema = data.Uri.Scheme;
-            return SchemaHttp.Equals(schema) || SchemaHttps.Equals(schema);
+            return System.Uri.UriSchemeHttp.Equals(schema) || System.Uri.UriSchemeHttps.Equals(schema);
         }
 
         public override Result Load(Request data)
