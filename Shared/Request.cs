@@ -68,6 +68,11 @@ namespace PicassoSharp
         public bool HasCustomTransformations { get { return Transformations != null; } }
         public bool HasRotationPivot { get; private set; }
 
+        public Builder BuildUpon()
+        {
+            return new Builder(this);
+        }
+
 	    public class Builder
         {
             private Uri m_Uri;
@@ -97,6 +102,25 @@ namespace PicassoSharp
             {
                 m_Uri = uri;
 	            m_ResourceId = resourceId;
+	        }
+
+	        public Builder(Request request)
+	        {
+	            m_Uri = request.Uri;
+	            m_ResourceId = request.ResourceId;
+                m_StableKey = request.StableKey;
+                m_TargetWidth = request.TargetWidth;
+                m_TargetHeight = request.TargetHeight;
+                m_CenterCrop = request.CenterCrop;
+                m_CenterInside = request.CenterInside;
+                m_RotationDegrees = request.RotationDegrees;
+                m_RotationPivotX = request.RotationPivotX;
+                m_RotationPivotY = request.RotationPivotY;
+                m_HasRotationPivot = request.HasRotationPivot;
+                if (request.Transformations != null)
+                {
+                    m_Transformations = new List<ITransformation>(request.Transformations);
+                }
 	        }
 
 	        public bool HasImage
