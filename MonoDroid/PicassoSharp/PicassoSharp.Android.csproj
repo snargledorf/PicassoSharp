@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AndroidUtils.cs" />
+    <Compile Include="ContentStreamRequestHandler.cs" />
     <Compile Include="DeferredRequestCreator.cs" />
     <Compile Include="Dispatcher.cs" />
     <Compile Include="FetchAction.cs" />
