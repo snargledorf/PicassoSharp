@@ -80,8 +80,8 @@ namespace PicassoSharp
             {
                 allRequestHandlers.AddRange(allRequestHandlers);
             }
-            allRequestHandlers.Add(new FileRequestHandler());
             allRequestHandlers.Add(new ContentStreamRequestHandler(context));
+            allRequestHandlers.Add(new FileRequestHandler(context));
             allRequestHandlers.Add(new NetworkRequestHandler(dispatcher.Downloader));
             m_RequestHandlers = Collections.UnmodifiableList(allRequestHandlers);
 

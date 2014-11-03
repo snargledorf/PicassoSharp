@@ -1,39 +1,25 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using Android.Graphics;
+using Android.Content;
 using Android.Media;
-using Stream = System.IO.Stream;
 
 namespace PicassoSharp
 {
-	class FileRequestHandler : RequestHandler
+    class FileRequestHandler : ContentStreamRequestHandler
 	{
-	    public override bool CanHandleRequest(Request data)
+        internal FileRequestHandler(Context context) : base(context)
+        {
+        }
+
+        public override bool CanHandleRequest(Request data)
         {
             return data.Uri.IsFile;
         }
 
 	    public override Result Load(Request data)
         {
-            return new Result(DecodeStream(data), LoadedFrom.Disk, GetFileExifRotation(data.Uri));
+            return new Result(DecodeContentStream(data), LoadedFrom.Disk, GetFileExifRotation(data.Uri));
         }
-
-        private Bitmap DecodeStream(Request data)
-        {
-            var stream = File.OpenRead(data.Uri.AbsolutePath);
-            BitmapFactory.Options options = CreateBitmapOptions(data);
-            bool calculateSize = RequiresInSampleSize(options);
-
-            byte[] bytes = Utils.ToByteArray(stream);
-            if (calculateSize)
-            {
-                BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
-                CalculateInSampleSize(data.TargetWidth, data.TargetHeight, options, data);
-            }
-            return BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length, options);
-        }
-
+        
         private static int GetFileExifRotation(Uri uri)
         {
             var exifInterface = new ExifInterface(uri.AbsolutePath);
