@@ -27,7 +27,7 @@ namespace PicassoSharp
 
         protected Bitmap DecodeContentStream(Request data)
         {
-            var uri = Android.Net.Uri.Parse(data.Uri.AbsolutePath);
+            var uri = Android.Net.Uri.Parse(data.Uri.ToString());
             ContentResolver contentResolver = m_Context.ContentResolver;
             BitmapFactory.Options bitmapOptions = CreateBitmapOptions(data);
             Stream stream = null;
