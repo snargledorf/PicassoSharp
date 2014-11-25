@@ -67,8 +67,7 @@
     <Compile Include="UrlConnectionDownloader.cs" />
     <Compile Include="WeakHashtable.cs" />
   </ItemGroup>
-  <Import Project="..\Shared\Shared.projitems" Label="Shared" Condition="Exists('..\Shared\Shared.projitems')" />
-  <Import Project="..\..\Shared\Shared.projitems" Label="Shared" Condition="Exists('..\..\Shared\Shared.projitems')" />
+  <Import Project="..\..\Shared\Picasso.Common.projitems" Label="Shared" Condition="Exists('..\..\Shared\Picasso.Common.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
