@@ -39,3 +39,4 @@ Components/
 # NuGet
 HomerDemoApp/packages/*
 !repositories.config
+*.user
