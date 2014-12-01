@@ -40,3 +40,4 @@ Components/
 HomerDemoApp/packages/*
 !repositories.config
 *.user
+*Resource.Designer.cs
