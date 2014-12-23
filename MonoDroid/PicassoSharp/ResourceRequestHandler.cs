@@ -13,17 +13,17 @@ namespace PicassoSharp
             m_Context = context;
         }
 
-        public override bool CanHandleRequest(Request data)
+        public override bool CanHandleRequest(Request<Bitmap> data)
         {
             return data.ResourceId != 0;
         }
 
-        public override Result Load(Request data)
+        public override Result<Bitmap> Load(Request<Bitmap> data)
         {
-            return new Result(DecodeResource(m_Context.Resources, data.ResourceId, data), LoadedFrom.Disk);
+            return new Result<Bitmap>(DecodeResource(m_Context.Resources, data.ResourceId, data), LoadedFrom.Disk);
         }
 
-        private static Bitmap DecodeResource(Resources resources, int id, Request data)
+        private static Bitmap DecodeResource(Resources resources, int id, Request<Bitmap> data)
         {
             BitmapFactory.Options options = CreateBitmapOptions(data);
             if (RequiresInSampleSize(options))

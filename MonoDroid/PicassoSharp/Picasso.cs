@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Widget;
 using Java.IO;
@@ -11,16 +13,11 @@ using IList = System.Collections.IList;
 
 namespace PicassoSharp
 {
-    public sealed class Picasso : IDisposable
+    public sealed class Picasso : IPicasso<Bitmap, Drawable>, IDisposable
     {
         public interface IListener
         {
             void OnImageLoadFailed(Picasso picasso, Uri uri, Exception exception);
-        }
-
-        public interface IRequestTransformer
-        {
-            Request TransformRequest(Request request);
         }
 
         private const int RequestGced = 0;
@@ -33,11 +30,11 @@ namespace PicassoSharp
         private readonly Context m_Context;
         private readonly IExecutorService m_Service;
         private readonly ICache<Bitmap> m_Cache;
-        private readonly IRequestTransformer m_RequestTransformer;
-        private readonly IList m_RequestHandlers;
+        private readonly IRequestTransformer<Bitmap> m_RequestTransformer;
         private readonly Dispatcher m_Dispatcher;
         private readonly IListener m_Listener;
-        private readonly WeakHashtable<object, Action> m_TargetToAction;
+        private readonly IList<IRequestHandler<Bitmap>> m_RequestHandlers;
+        private readonly WeakHashtable<object, Action<Bitmap, Drawable>> m_TargetToAction;
         private readonly WeakHashtable<ImageView, DeferredRequestCreator> m_TargetToDeferredRequestCreator;
         
         private bool m_Disposed;
@@ -45,11 +42,6 @@ namespace PicassoSharp
         internal Context Context
         {
             get { return m_Context; }
-        }
-
-        internal IList RequestHandlers
-        {
-            get { return m_RequestHandlers; }
         }
 
         internal ICache<Bitmap> Cache
@@ -62,7 +54,12 @@ namespace PicassoSharp
             get { return m_Dispatcher; }
         }
 
-        private Picasso(Context context, ICache<Bitmap> cache, IRequestTransformer requestTransformer, List<RequestHandler> extraRequestHandlers, IExecutorService service, Dispatcher dispatcher, IListener listener)
+        public IList<IRequestHandler<Bitmap>> RequestHandlers
+        {
+            get { return m_RequestHandlers; }
+        }
+
+        private Picasso(Context context, ICache<Bitmap> cache, IRequestTransformer<Bitmap> requestTransformer, List<RequestHandler> extraRequestHandlers, IExecutorService service, Dispatcher dispatcher, IListener listener)
         {
             m_Context = context;
             m_Cache = cache;
@@ -70,7 +67,7 @@ namespace PicassoSharp
 
             const int builtInHandlersCount = 3;
             int extraHandlersCount = extraRequestHandlers != null ? extraRequestHandlers.Count : 0;
-            var allRequestHandlers = new List<RequestHandler>(builtInHandlersCount + extraHandlersCount);
+            var allRequestHandlers = new List<IRequestHandler<Bitmap>>(builtInHandlersCount + extraHandlersCount);
 
             // ResourceRequestHandler needs to be the first in the list to avoid
             // forcing other RequestHandlers to perform null checks on request.uri
@@ -83,12 +80,12 @@ namespace PicassoSharp
             allRequestHandlers.Add(new ContentStreamRequestHandler(context));
             allRequestHandlers.Add(new FileRequestHandler(context));
             allRequestHandlers.Add(new NetworkRequestHandler(dispatcher.Downloader));
-            m_RequestHandlers = Collections.UnmodifiableList(allRequestHandlers);
+            m_RequestHandlers = new ReadOnlyCollection<IRequestHandler<Bitmap>>(allRequestHandlers);
 
             m_Service = service;
             m_Dispatcher = dispatcher;
             m_Listener = listener;
-            m_TargetToAction = new WeakHashtable<object, Action>();
+            m_TargetToAction = new WeakHashtable<object, Action<Bitmap, Drawable>>();
             m_TargetToDeferredRequestCreator = new WeakHashtable<ImageView, DeferredRequestCreator>();
         }
 
@@ -148,9 +145,14 @@ namespace PicassoSharp
             IsShutdown = true;
         }
 
-        private void CancelExistingRequest(Object target)
+        void IPicasso<Bitmap, Drawable>.CancelExistingRequest(Object target)
         {
-            Action action;
+            PerformCancelExistingRequest(target);
+        }
+
+        private void PerformCancelExistingRequest(Object target)
+        {
+            Action<Bitmap, Drawable> action;
             if (m_TargetToAction.TryGetValue(target, out action))
             {
                 action.Cancel();
@@ -171,7 +173,7 @@ namespace PicassoSharp
             m_TargetToDeferredRequestCreator.Remove(imageViewTarget);
         }
 
-        private void LinkTargetToAction(Object target, Action action)
+        private void LinkTargetToAction(Object target, Action<Bitmap, Drawable> action)
         {
             m_TargetToAction.Add(target, action);
         }
@@ -181,18 +183,18 @@ namespace PicassoSharp
             m_TargetToDeferredRequestCreator.Add(target, deferredRequestCreator);
         }
 
-        internal void EnqueueAndSubmit(Action action)
+        internal void EnqueueAndSubmit(Action<Bitmap, Drawable> action)
         {
             var target = action.Target;
             if (target != null)
             {
-                CancelExistingRequest(target);
+                PerformCancelExistingRequest(target);
                 LinkTargetToAction(target, action);
             }
             Submit(action);
         }
 
-        internal void Submit(Action action)
+        internal void Submit(Action<Bitmap, Drawable> action)
         {
             m_Dispatcher.DispatchSubmit(action);
         }
@@ -205,19 +207,19 @@ namespace PicassoSharp
 
         public void CancelRequest(ImageView target)
         {
-            CancelExistingRequest(target);
+            PerformCancelExistingRequest(target);
         }
 
-        public void CancelRequest(ITarget target)
+        public void CancelRequest(ITarget<Bitmap, Drawable, Drawable> target)
         {
-            CancelExistingRequest(target);
+            PerformCancelExistingRequest(target);
         }
 
-        private void Complete(BitmapHunter hunter)
+        void IPicasso<Bitmap, Drawable>.Complete(IBitmapHunter<Bitmap, Drawable> hunter)
         {
             Uri uri = hunter.Data.Uri;
-            Action action = hunter.Action;
-            List<Action> additionalActions = hunter.Actions;
+            Action<Bitmap, Drawable> action = hunter.Action;
+            List<Action<Bitmap, Drawable>> additionalActions = hunter.Actions;
             Bitmap result = hunter.Result;
             LoadedFrom loadedFrom = hunter.LoadedFrom;
             Exception exception = hunter.Exception;
@@ -229,7 +231,7 @@ namespace PicassoSharp
 
             if (additionalActions != null)
             {
-                foreach (Action additionalAction in additionalActions)
+                foreach (Action<Bitmap, Drawable> additionalAction in additionalActions)
                 {
                     CompleteAction(result, additionalAction, loadedFrom);
                 }
@@ -241,7 +243,12 @@ namespace PicassoSharp
             }
         }
 
-        private void CompleteAction(Bitmap result, Action action, LoadedFrom loadedFrom)
+        void IPicasso<Bitmap, Drawable>.RunOnPicassoThread(Action action)
+        {
+            Handler.Post(action);
+        }
+
+        private void CompleteAction(Bitmap result, Action<Bitmap, Drawable> action, LoadedFrom loadedFrom)
         {
             if (action.Cancelled)
                 return;
@@ -292,9 +299,9 @@ namespace PicassoSharp
             private readonly Context m_Context;
             private ICache<Bitmap> m_Cache;
             private IExecutorService m_Service;
-            private IDownloader m_Downloader;
+            private IDownloader<Bitmap> m_Downloader;
             private IListener m_Listener;
-            private IRequestTransformer m_RequestTransformer;
+            private IRequestTransformer<Bitmap> m_RequestTransformer;
             private List<RequestHandler> m_RequestHandlers;
 
             public Builder(Context context)
@@ -310,7 +317,7 @@ namespace PicassoSharp
                 }
                 if (m_Cache != null)
                 {
-                    throw new IllegalStateException("Cache already set");
+                    throw new InvalidOperationException("Cache already set");
                 }
                 m_Cache = cache;
                 return this;
@@ -324,13 +331,13 @@ namespace PicassoSharp
                 }
                 if (m_Service != null)
                 {
-                    throw new IllegalStateException("Executor service already set");
+                    throw new InvalidOperationException("Executor service already set");
                 }
                 m_Service = service;
                 return this;
             }
 
-            public Builder Downloader(IDownloader downloader)
+            public Builder Downloader(IDownloader<Bitmap> downloader)
             {
                 if (downloader == null)
                 {
@@ -338,7 +345,7 @@ namespace PicassoSharp
                 }
                 if (m_Downloader != null)
                 {
-                    throw new IllegalStateException("Downloader already set");
+                    throw new InvalidOperationException("Downloader already set");
                 }
 
                 m_Downloader = downloader;
@@ -353,13 +360,13 @@ namespace PicassoSharp
                 }
                 if (m_Listener != null)
                 {
-                    throw new IllegalStateException("Listener already set");
+                    throw new InvalidOperationException("Listener already set");
                 }
                 m_Listener = listener;
                 return this;
             }
 
-            public Builder RequestTransformer(IRequestTransformer requestTransformer)
+            public Builder RequestTransformer(IRequestTransformer<Bitmap> requestTransformer)
             {
                 if (requestTransformer == null)
                 {
@@ -367,7 +374,7 @@ namespace PicassoSharp
                 }
                 if (m_RequestTransformer != null)
                 {
-                    throw new IllegalStateException("Request transformer already set");
+                    throw new InvalidOperationException("Request transformer already set");
                 }
                 m_RequestTransformer = requestTransformer;
                 return this;
@@ -385,7 +392,7 @@ namespace PicassoSharp
                 }
                 if (m_RequestHandlers.Contains(requestHandler))
                 {
-                    throw new IllegalStateException("RequestHandler already registered.");
+                    throw new InvalidOperationException("RequestHandler already registered.");
                 }
                 m_RequestHandlers.Add(requestHandler);
                 return this;
@@ -419,9 +426,9 @@ namespace PicassoSharp
                 return new Picasso(m_Context, m_Cache, m_RequestTransformer, m_RequestHandlers, m_Service, dispatcher, m_Listener);
             }
 
-            public class DummyRequestTransformer : IRequestTransformer
+            public class DummyRequestTransformer : IRequestTransformer<Bitmap>
             {
-                public Request TransformRequest(Request request)
+                public Request<Bitmap> TransformRequest(Request<Bitmap> request)
                 {
                     return request;
                 }
@@ -450,20 +457,20 @@ namespace PicassoSharp
                         break;
                     case RequestGced:
                     {
-                        var action = (Action) msg.Obj;
-                        action.Picasso.CancelExistingRequest(action.Target);
+                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>) msg.Obj;
+                        actionWrapper.Value.Picasso.CancelExistingRequest(actionWrapper.Value.Target);
                     }
                         break;
                 }
             }
         }
 
-        internal Request TransformRequest(Request request)
+        internal Request<Bitmap> TransformRequest(Request<Bitmap> request)
         {
-            Request transformed = m_RequestTransformer.TransformRequest(request);
+            Request<Bitmap> transformed = m_RequestTransformer.TransformRequest(request);
             if (transformed == null)
             {
-                throw new IllegalStateException("Request transformer "
+                throw new InvalidOperationException("Request transformer "
                     + m_RequestTransformer.GetType().Name
                     + " returned null for "
                     + request);

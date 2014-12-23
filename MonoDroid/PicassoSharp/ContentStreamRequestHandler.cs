@@ -15,17 +15,17 @@ namespace PicassoSharp
             m_Context = context;
         }
 
-        public override bool CanHandleRequest(Request data)
+        public override bool CanHandleRequest(Request<Bitmap> data)
         {
             return ContentResolver.SchemeContent.Equals(data.Uri.Scheme);
         }
 
-        public override Result Load(Request data)
+        public override Result<Bitmap> Load(Request<Bitmap> data)
         {
-            return new Result(DecodeContentStream(data), LoadedFrom.Disk);
+            return new Result<Bitmap>(DecodeContentStream(data), LoadedFrom.Disk);
         }
 
-        protected Bitmap DecodeContentStream(Request data)
+        protected Bitmap DecodeContentStream(Request<Bitmap> data)
         {
             var uri = Android.Net.Uri.Parse(data.Uri.ToString());
             ContentResolver contentResolver = m_Context.ContentResolver;

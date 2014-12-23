@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.Content;
+using Android.Graphics;
 using Android.Net.Http;
 using Android.OS;
 using Java.IO;
@@ -7,7 +8,7 @@ using Java.Net;
 
 namespace PicassoSharp
 {
-    class UrlConnectionDownloader : IDownloader
+    class UrlConnectionDownloader : IDownloader<Bitmap>
     {
         private const string ResponseSource = "X-Android-Response-Source";
 
@@ -31,7 +32,7 @@ namespace PicassoSharp
             return connection;
         }
 
-        public Response Load(Uri uri, bool localCacheOnly)
+        public Response<Bitmap> Load(Uri uri, bool localCacheOnly)
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
             {
@@ -59,7 +60,7 @@ namespace PicassoSharp
             long contentLength = connection.GetHeaderFieldInt("Content-Length", -1);
             bool fromCache = ParseResponseSourceHeader(connection.GetHeaderField(ResponseSource));
 
-            return new Response(connection.InputStream, fromCache, contentLength);
+            return new Response<Bitmap>(connection.InputStream, fromCache, contentLength);
         }
 
         public void Shutdown()

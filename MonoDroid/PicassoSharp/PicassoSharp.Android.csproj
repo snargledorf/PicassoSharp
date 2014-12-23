@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PicassoSharp</RootNamespace>
-    <AssemblyName>PicassoSharp</AssemblyName>
+    <AssemblyName>PicassoSharp.Android</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -46,14 +46,9 @@
     <Compile Include="ContentStreamRequestHandler.cs" />
     <Compile Include="DeferredRequestCreator.cs" />
     <Compile Include="Dispatcher.cs" />
-    <Compile Include="FetchAction.cs" />
-    <Compile Include="GetAction.cs" />
     <Compile Include="ImageViewAction.cs" />
-    <Compile Include="ITarget.cs" />
-    <Compile Include="ITransformation.cs" />
     <Compile Include="PicassoDrawable.cs" />
     <Compile Include="PicassoExecutorService.cs" />
-    <Compile Include="Action.cs" />
     <Compile Include="Picasso.cs" />
     <Compile Include="FileRequestHandler.cs" />
     <Compile Include="BitmapHunter.cs" />
@@ -63,11 +58,17 @@
     <Compile Include="ResourceRequestHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleBlurTransformation.cs" />
-    <Compile Include="TargetAction.cs" />
     <Compile Include="UrlConnectionDownloader.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="WeakHashtable.cs" />
+    <Compile Include="WebRequestDownloader.cs" />
   </ItemGroup>
-  <Import Project="..\..\Shared\Picasso.Common.projitems" Label="Shared" Condition="Exists('..\..\Shared\Picasso.Common.projitems')" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Picasso.Common.csproj">
+      <Project>{14e91a63-d8d4-4f78-be59-87f2c690a6c1}</Project>
+      <Name>Picasso.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

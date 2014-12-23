@@ -6,11 +6,14 @@ using Android.Graphics.Drawables;
 
 namespace PicassoSharp
 {
-	public class ImageViewAction : Action
+	public class ImageViewAction : Action<Bitmap, Drawable>
 	{
-		public ImageViewAction(Picasso picasso, ImageView target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+	    private readonly Picasso m_Picasso;
+
+		public ImageViewAction(Picasso picasso, ImageView target, Request<Bitmap> request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
 			: base(picasso, target, request, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
 		{
+		    m_Picasso = picasso;
 		}
 
 		#region implemented abstract members of Action
@@ -25,7 +28,7 @@ namespace PicassoSharp
             if (target == null || target.Handle == IntPtr.Zero)
 				return;
 
-            PicassoDrawable.SetBitmap(target, Picasso.Context, bitmap, loadedFrom, FadeMode);
+            PicassoDrawable.SetBitmap(target, m_Picasso.Context, bitmap, loadedFrom, FadeMode);
 		}
 
 	    protected override void OnError()

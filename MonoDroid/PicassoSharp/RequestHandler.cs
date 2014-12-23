@@ -4,7 +4,7 @@ using Android.Net;
 
 namespace PicassoSharp
 {
-    public abstract class RequestHandler
+    public abstract class RequestHandler : IRequestHandler<Bitmap>
     {
         public virtual int RetryCount
         {
@@ -16,16 +16,16 @@ namespace PicassoSharp
             get { return false; }
         }
 
-        public abstract bool CanHandleRequest(Request data);
+        public abstract bool CanHandleRequest(Request<Bitmap> data);
 
-        public abstract Result Load(Request data);
+        public abstract Result<Bitmap> Load(Request<Bitmap> data);
 
         public virtual bool ShouldRetry(bool airplaneMode, NetworkInfo info)
         {
             return false;
         }
 
-        protected static BitmapFactory.Options CreateBitmapOptions(Request data)
+        protected static BitmapFactory.Options CreateBitmapOptions(Request<Bitmap> data)
         {
             bool justBounds = data.HasSize;
             BitmapFactory.Options options = null;
@@ -42,13 +42,13 @@ namespace PicassoSharp
             return options != null && options.InJustDecodeBounds;
         }
 
-        protected static void CalculateInSampleSize(int targetWidth, int targetHeight, BitmapFactory.Options options, Request request)
+        protected static void CalculateInSampleSize(int targetWidth, int targetHeight, BitmapFactory.Options options, Request<Bitmap> request)
         {
             CalculateInSampleSize(targetWidth, targetHeight, options.OutWidth, options.OutHeight, options, request);
         }
 
         protected static void CalculateInSampleSize(int reqWidth, int reqHeight, int width, int height,
-            BitmapFactory.Options options, Request request)
+            BitmapFactory.Options options, Request<Bitmap> request)
         {
             int sampleSize = 1;
             if (height > reqHeight || width > reqWidth)
@@ -72,37 +72,6 @@ namespace PicassoSharp
             }
             options.InSampleSize = sampleSize;
             options.InJustDecodeBounds = false;
-        }
-
-        public class Result
-        {
-            private readonly LoadedFrom m_LoadedFrom;
-            private readonly Bitmap m_Bitmap;
-            private readonly int m_ExifOrientation;
-
-            public Bitmap Bitmap
-            {
-                get { return m_Bitmap; }
-            }
-
-            public LoadedFrom LoadedFrom
-            {
-                get { return m_LoadedFrom; }
-            }
-
-            internal int ExifOrientation
-            {
-                get { return m_ExifOrientation; }
-            }
-
-            public Result(Bitmap bitmap, LoadedFrom loadedFrom) : this(bitmap, loadedFrom, 0) { }
-
-            public Result(Bitmap bitmap, LoadedFrom loadedFrom, int exifOrientation)
-            {
-                m_Bitmap = bitmap;
-                m_LoadedFrom = loadedFrom;
-                m_ExifOrientation = exifOrientation;
-            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace PicassoSharp
 {
 	public sealed class RequestCreator
     {
-        private readonly Request.Builder m_Data;
+        private readonly Request<Bitmap>.Builder m_Data;
         private readonly Picasso m_Picasso;
 
         private bool m_SkipCache;
@@ -30,7 +30,7 @@ namespace PicassoSharp
 		        throw new Exception("Picasso instance shutdown. Cannot submit new requests");
 		    }
 
-			m_Data = new Request.Builder(uri, resourceId);
+            m_Data = new Request<Bitmap>.Builder(uri, resourceId);
 			m_Picasso = picasso;
 		}
 
@@ -40,13 +40,13 @@ namespace PicassoSharp
 			return this;
 		}
 
-	    public RequestCreator Transform(ITransformation transformation)
+	    public RequestCreator Transform(ITransformation<Bitmap> transformation)
 	    {
 	        m_Data.Tranform(transformation);
             return this;
 	    }
 
-		public RequestCreator FadeMode(FadeMode mode)
+        public RequestCreator FadeMode(FadeMode mode)
 		{
 			m_FadeMode = mode;
 			return this;
@@ -64,19 +64,19 @@ namespace PicassoSharp
             return this;
         }
 
-	    public RequestCreator Fit()
+        public RequestCreator Fit()
 	    {
 	        m_Deferred = true;
             return this;
 	    }
 
-	    internal RequestCreator Unfit()
+        internal RequestCreator Unfit()
 	    {
 	        m_Deferred = false;
             return this;
 	    }
 
-		public RequestCreator Resize(int width, int height)
+        public RequestCreator Resize(int width, int height)
 		{
 			m_Data.Resize(width, height);
 			return this;
@@ -94,7 +94,7 @@ namespace PicassoSharp
             return this;
         }
 
-		public RequestCreator PlaceholderDrawable(Drawable placeholderDrawable)
+        public RequestCreator PlaceholderDrawable(Drawable placeholderDrawable)
 		{
 			m_PlaceholderDrawable = placeholderDrawable;
 			return this;
@@ -140,7 +140,7 @@ namespace PicassoSharp
 	    {
 	        if (m_Deferred)
 	        {
-	            throw new IllegalStateException("Fit cannot be used with get");
+	            throw new InvalidOperationException("Fit cannot be used with get");
 	        }
 
 	        if (!m_Data.HasImage)
@@ -148,10 +148,10 @@ namespace PicassoSharp
 	            return null;
 	        }
 
-	        Request request = CreateRequest();
+	        Request<Bitmap> request = CreateRequest();
 	        string key = Utils.CreateKey(request, new StringBuilder());
 
-	        Action getAction = new GetAction(m_Picasso, request, m_SkipCache, key);
+            Action<Bitmap, Drawable> getAction = new GetAction<Bitmap, Drawable>(m_Picasso, request, m_SkipCache, key);
 	        return BitmapHunter.ForRequest(m_Picasso, getAction, m_Picasso.Dispatcher, m_Picasso.Cache).Hunt();
 	    }
 
@@ -159,20 +159,20 @@ namespace PicassoSharp
 	    {
 	        if (m_Deferred)
 	        {
-	            throw new IllegalStateException("Fit cannot be used with fetch");
+                throw new InvalidOperationException("Fit cannot be used with fetch");
 	        }
 
 	        if (m_Data.HasImage)
 	        {
-	            Request request = CreateRequest();
+	            Request<Bitmap> request = CreateRequest();
 	            string key = Utils.CreateKey(request, new StringBuilder());
 
-	            Action fetchAction = new FetchAction(m_Picasso, request, m_SkipCache, key);
+	            Action<Bitmap, Drawable> fetchAction = new FetchAction<Bitmap, Drawable>(m_Picasso, request, m_SkipCache, key);
 	            m_Picasso.EnqueueAndSubmit(fetchAction);
 	        }
 	    }
 
-	    public void Into(ITarget target)
+	    public void Into(ITarget<Bitmap, Drawable, Drawable> target)
         {
 			if (target == null)
 				throw new ArgumentNullException("target");
@@ -182,10 +182,10 @@ namespace PicassoSharp
 
             target.OnPrepareLoad(m_PlaceholderDrawable);
 
-	        Request request = CreateRequest();
+	        Request<Bitmap> request = CreateRequest();
 			string key = Utils.CreateKey(request);
 
-			Action action = new TargetAction(
+            Action<Bitmap, Drawable> action = new TargetAction<Bitmap, Drawable, Drawable>(
 				m_Picasso,
 				target, 
 				request,
@@ -229,7 +229,7 @@ namespace PicassoSharp
             {
                 if (m_Data.HasSize)
                 {
-                    throw new IllegalStateException("Fit cannot be used with resize.");
+                    throw new InvalidOperationException("Fit cannot be used with resize.");
                 }
 
                 int width = target.Width;
@@ -243,7 +243,7 @@ namespace PicassoSharp
                 m_Data.Resize(width, height);
             }
 
-            Request request = CreateRequest();
+            Request<Bitmap> request = CreateRequest();
             string key = Utils.CreateKey(request);
 
             var action = new ImageViewAction(
@@ -274,7 +274,7 @@ namespace PicassoSharp
             m_Picasso.EnqueueAndSubmit(action);
         }
 
-        private Request CreateRequest()
+        private Request<Bitmap> CreateRequest()
         {
             return m_Picasso.TransformRequest(m_Data.Build());
         }

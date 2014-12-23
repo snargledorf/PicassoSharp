@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Net;
 using Java.Lang;
 using Java.Util.Concurrent;
@@ -15,7 +16,7 @@ using Thread = Java.Lang.Thread;
 
 namespace PicassoSharp
 {
-	class BitmapHunter : Object, IRunnable
+	class BitmapHunter : Object, IBitmapHunter<Bitmap, Drawable>, IRunnable
     {
         /*
         * Global lock for bitmap decoding to ensure that we are only are decoding one at a time. Since
@@ -27,15 +28,15 @@ namespace PicassoSharp
         private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));  
         private static readonly ErrorHandler s_ErrorHandler = new ErrorHandler();
 
-	    private readonly Picasso m_Picasso;
+        private readonly IPicasso<Bitmap, Drawable> m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<Bitmap> m_Cache;
 	    private readonly RequestHandler m_RequestHandler;
 	    private readonly bool m_SkipCache;
-		private readonly Request m_Data;
+		private readonly Request<Bitmap> m_Data;
 		private readonly string m_Key;
 
-	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache, RequestHandler requestHandler)
+        protected BitmapHunter(IPicasso<Bitmap, Drawable> picasso, Action<Bitmap, Drawable> action, Dispatcher dispatcher, ICache<Bitmap> cache, RequestHandler requestHandler)
         {
             Action = action;
 			m_Data = action.Request;
@@ -47,11 +48,11 @@ namespace PicassoSharp
             m_SkipCache = action.SkipCache;
         }
 
-	    public Action Action { get; private set; }
+        public Action<Bitmap, Drawable> Action { get; private set; }
 
-	    public List<Action> Actions { get; private set; }
+        public List<Action<Bitmap, Drawable>> Actions { get; private set; }
 
-	    public Picasso Picasso
+        public IPicasso<Bitmap, Drawable> Picasso
 		{
 			get
 			{
@@ -75,7 +76,7 @@ namespace PicassoSharp
 			}
 		}
 
-		public Request Data
+        public Request<Bitmap> Data
 		{
 			get
 			{
@@ -114,7 +115,7 @@ namespace PicassoSharp
 	        get { return Future != null && Future.IsCancelled; }
         }
 
-	    public void Attach(Action action)
+        public void Attach(Action<Bitmap, Drawable> action)
         {
             if (Action == null)
             {
@@ -124,12 +125,12 @@ namespace PicassoSharp
 
             if (Actions == null)
             {
-                Actions = new List<Action>();
+                Actions = new List<Action<Bitmap, Drawable>>();
             }
             Actions.Add(action);
         }
 
-        public void Detach(Action action)
+        public void Detach(Action<Bitmap, Drawable> action)
         {
             if (Action == action)
             {
@@ -201,7 +202,7 @@ namespace PicassoSharp
 				}
 			}
 
-		    RequestHandler.Result result = m_RequestHandler.Load(Data);
+            Result<Bitmap> result = m_RequestHandler.Load(Data);
 		    if (result != null)
 		    {
 		        bitmap = result.Bitmap;
@@ -230,7 +231,7 @@ namespace PicassoSharp
 			return bitmap;
 		}
 
-	    private void UpdateThreadName(Request data)
+	    private void UpdateThreadName(Request<Bitmap> data)
         {
             string name = data.Name;
 
@@ -241,10 +242,10 @@ namespace PicassoSharp
             Thread.CurrentThread().Name = builder.ToString();
         }
 
-        public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<Bitmap> cache)
+        public static BitmapHunter ForRequest(IPicasso<Bitmap, Drawable> picasso, Action<Bitmap, Drawable> action, Dispatcher dispatcher, ICache<Bitmap> cache)
 		{
-            Request request = action.Request;
-            IList requestHandlers = picasso.RequestHandlers;
+            Request<Bitmap> request = action.Request;
+            IList<IRequestHandler<Bitmap>> requestHandlers = picasso.RequestHandlers;
 
             // Index-based loop to avoid allocating an iterator.
             for (int i = 0, count = requestHandlers.Count; i < count; i++)
@@ -264,13 +265,13 @@ namespace PicassoSharp
             return false;
 	    }
 
-        private Bitmap ApplyCustomTransformations(List<ITransformation> transformations, Bitmap result)
+        private Bitmap ApplyCustomTransformations(List<ITransformation<Bitmap>> transformations, Bitmap result)
         {
             if (result == null) throw new ArgumentNullException("result");
 
             for (int i = 0; i < transformations.Count; i++)
             {
-                ITransformation transformation = transformations[i];
+                ITransformation<Bitmap> transformation = transformations[i];
                 Bitmap newResult = transformation.Transform(result);
 
                 if (newResult == null)
@@ -281,11 +282,11 @@ namespace PicassoSharp
                         .Append(" returned null after ")
                         .Append(i)
                         .Append(" previous transformation(s).\n\nTransformation list:\n");
-                    foreach (ITransformation t in transformations)
+                    foreach (ITransformation<Bitmap> t in transformations)
                     {
                         builder.Append(t.Key).Append('\n');
                     }
-                    Picasso.Handler.Post(() =>
+                    Picasso.RunOnPicassoThread(() =>
                     {
                         throw new NullReferenceException(builder.ToString());
                     });
@@ -294,7 +295,7 @@ namespace PicassoSharp
 
                 if (newResult == result && result.IsRecycled)
                 {
-                    Picasso.Handler.Post(() =>
+                    Picasso.RunOnPicassoThread(() =>
                     {
                         throw new IllegalStateException("Transformation " +
                                                         transformation.Key + " return input Bitmap but recycled it.");
@@ -305,7 +306,7 @@ namespace PicassoSharp
                 // If the transformation returned a new bitmap ensure they recycled the original.
                 if (newResult != result && !result.IsRecycled)
                 {
-                    Picasso.Handler.Post(() =>
+                    Picasso.RunOnPicassoThread(() =>
                     {
                         throw new IllegalStateException("Transformation "
                                                         + transformation.Key
@@ -320,7 +321,7 @@ namespace PicassoSharp
             return result;
         }
 
-        static Bitmap TransformResult(Request data, Bitmap result, int exifRotation)
+        static Bitmap TransformResult(Request<Bitmap> data, Bitmap result, int exifRotation)
         {
             int inWidth = result.Width;
             int inHeight = result.Height;
@@ -406,12 +407,12 @@ namespace PicassoSharp
 
 	    private class ErrorHandler : RequestHandler
 	    {
-	        public override bool CanHandleRequest(Request data)
+	        public override bool CanHandleRequest(Request<Bitmap> data)
 	        {
 	            return true;
 	        }
 
-	        public override Result Load(Request data)
+            public override Result<Bitmap> Load(Request<Bitmap> data)
 	        {
                 throw new IllegalStateException("Unrecognized type of request: " + data);
 	        }

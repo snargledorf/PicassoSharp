@@ -7,7 +7,7 @@ namespace PicassoSharp
     {
         private const int DefaultRetryCount = 2;
         
-        private readonly IDownloader m_Downloader;
+        private readonly IDownloader<Bitmap> m_Downloader;
         private int m_RetryCount;
 
         public override int RetryCount
@@ -15,7 +15,7 @@ namespace PicassoSharp
             get { return DefaultRetryCount; }
         }
 
-        internal NetworkRequestHandler(IDownloader downloader)
+        internal NetworkRequestHandler(IDownloader<Bitmap> downloader)
         {
             m_Downloader = downloader;
         }
@@ -30,15 +30,15 @@ namespace PicassoSharp
             get { return true; }
         }
 
-        public override bool CanHandleRequest(Request data)
+        public override bool CanHandleRequest(Request<Bitmap> data)
         {
             string schema = data.Uri.Scheme;
             return System.Uri.UriSchemeHttp.Equals(schema) || System.Uri.UriSchemeHttps.Equals(schema);
         }
 
-        public override Result Load(Request data)
+        public override Result<Bitmap> Load(Request<Bitmap> data)
         {
-            Response response = m_Downloader.Load(data.Uri, false);
+            Response<Bitmap> response = m_Downloader.Load(data.Uri, false);
             if (response == null)
                 return null;
 
@@ -46,7 +46,7 @@ namespace PicassoSharp
 
             Bitmap bitmap = response.Bitmap;
             if (bitmap != null)
-                return new Result(bitmap, loadedFrom);
+                return new Result<Bitmap>(bitmap, loadedFrom);
 
             Stream stream = response.Stream;
             if (stream == null)
@@ -60,7 +60,7 @@ namespace PicassoSharp
 
             try
             {
-                return new Result(DecodeStream(stream, data), loadedFrom);
+                return new Result<Bitmap>(DecodeStream(stream, data), loadedFrom);
             }
             finally
             {
@@ -68,7 +68,7 @@ namespace PicassoSharp
             }
         }
 
-        private Bitmap DecodeStream(Stream stream, Request date)
+        private Bitmap DecodeStream(Stream stream, Request<Bitmap> date)
         {
             BitmapFactory.Options options = CreateBitmapOptions(date);
             bool calculateSize = RequiresInSampleSize(options);

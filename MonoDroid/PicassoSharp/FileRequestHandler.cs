@@ -1,5 +1,6 @@
 using System;
 using Android.Content;
+using Android.Graphics;
 using Android.Media;
 
 namespace PicassoSharp
@@ -10,14 +11,14 @@ namespace PicassoSharp
         {
         }
 
-        public override bool CanHandleRequest(Request data)
+        public override bool CanHandleRequest(Request<Bitmap> data)
         {
             return data.Uri.IsFile;
         }
 
-	    public override Result Load(Request data)
+        public override Result<Bitmap> Load(Request<Bitmap> data)
         {
-            return new Result(DecodeContentStream(data), LoadedFrom.Disk, GetFileExifRotation(data.Uri));
+            return new Result<Bitmap>(DecodeContentStream(data), LoadedFrom.Disk, GetFileExifRotation(data.Uri));
         }
         
         private static int GetFileExifRotation(Uri uri)

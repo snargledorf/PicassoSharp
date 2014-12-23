@@ -1,23 +1,21 @@
 using System;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 
 namespace PicassoSharp
 {
-	public abstract class Action : Java.Lang.Object
+    public abstract class Action<TBitmap, TError>
     {
         private readonly WeakReference<Object> m_Target;
-		private readonly Picasso m_Picasso;
-		private readonly Request m_Request;
+        private readonly IPicasso<TBitmap, TError> m_Picasso;
+		private readonly Request<TBitmap> m_Request;
 		private readonly bool m_SkipCache;
 		private readonly string m_Key;
 	    private readonly FadeMode m_FadeMode;
-		private readonly Drawable m_ErrorDrawable;
+        private readonly TError m_ErrorDrawable;
 	    private readonly System.Action m_OnSuccessListener;
 	    private readonly System.Action m_OnFailureListener;
 	    private readonly System.Action m_OnFinishListener;
 
-	    protected Action(Picasso picasso, object target, Request request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+        protected Action(IPicasso<TBitmap, TError> picasso, object target, Request<TBitmap> request, bool skipCache, FadeMode fadeMode, string key, TError errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
             m_Target = target == null ? null : new WeakReference<Object>(target);
 			m_Picasso = picasso;
@@ -31,7 +29,7 @@ namespace PicassoSharp
 	        m_OnFinishListener = onFinishListener;
         }
 
-		public Picasso Picasso
+        public IPicasso<TBitmap, TError> Picasso
 		{
 			get
 			{
@@ -49,7 +47,7 @@ namespace PicassoSharp
             }
         }
 
-        public Request Request
+        public Request<TBitmap> Request
         {
             get
 			{
@@ -79,7 +77,7 @@ namespace PicassoSharp
             private set;
         }
 
-		public Drawable ErrorDrawable
+		public TError ErrorDrawable
 		{
 			get
 			{
@@ -100,7 +98,7 @@ namespace PicassoSharp
 	        get { return m_OnFinishListener; }
 	    }
 
-	    public void Complete(Bitmap bitmap, LoadedFrom loadedFrom)
+	    public void Complete(TBitmap bitmap, LoadedFrom loadedFrom)
 	    {
 	        OnComplete(bitmap, loadedFrom);
 
@@ -112,7 +110,7 @@ namespace PicassoSharp
 	        Finish();
 	    }
 
-	    protected abstract void OnComplete(Bitmap bitmap, LoadedFrom loadedFrom);
+	    protected abstract void OnComplete(TBitmap bitmap, LoadedFrom loadedFrom);
 
 	    public void Error()
 	    {

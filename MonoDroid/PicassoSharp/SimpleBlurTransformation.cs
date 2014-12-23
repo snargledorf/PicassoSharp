@@ -5,7 +5,7 @@ using Android.Renderscripts;
 
 namespace PicassoSharp
 {
-    public class SimpleBlurTransformation : ITransformation
+    public class SimpleBlurTransformation : ITransformation<Bitmap>
     {
         private readonly int m_BlurRadius;
         private RenderScript m_Rs;

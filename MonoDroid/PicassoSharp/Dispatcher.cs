@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Android;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Net;
 using Android.OS;
 using Java.Util;
@@ -31,7 +32,7 @@ namespace PicassoSharp
         private readonly Handler m_MainThreadHandler;
         private readonly Context m_Context;
         private readonly ICache<Bitmap> m_Cache;
-	    private readonly IDownloader m_Downloader;
+	    private readonly IDownloader<Bitmap> m_Downloader;
 	    private readonly IExecutorService m_Service;
         private readonly NetworkBroadcastReceiver m_Receiver;
         private readonly Dictionary<String, BitmapHunter> m_Hunters = new Dictionary<String, BitmapHunter>();
@@ -39,12 +40,12 @@ namespace PicassoSharp
 	    private bool m_AirplaneMode;
 	    private NetworkInfo m_NetworkInfo;
 
-	    public IDownloader Downloader
+	    public IDownloader<Bitmap> Downloader
 	    {
 	        get { return m_Downloader; }
 	    }
 
-	    internal Dispatcher(Context context, Handler mainThreadHandler, IExecutorService service, ICache<Bitmap> cache, IDownloader downloader)
+	    internal Dispatcher(Context context, Handler mainThreadHandler, IExecutorService service, ICache<Bitmap> cache, IDownloader<Bitmap> downloader)
         {
             m_DipatcherThread = new DispatcherThread();
 	        m_DipatcherThread.Start();
@@ -66,14 +67,14 @@ namespace PicassoSharp
 	        m_Receiver.Unregister();
 	    }
 
-	    internal void DispatchSubmit(Action action)
+        internal void DispatchSubmit(Action<Bitmap, Drawable> action)
 	    {
-	        m_Handler.SendMessage(m_Handler.ObtainMessage(RequestSubmit, action));
+	        m_Handler.SendMessage(m_Handler.ObtainMessage(RequestSubmit, Utils.Wrap(action)));
         }
 
-        internal void DispatchCancel(Action action)
+	    internal void DispatchCancel(Action<Bitmap, Drawable> action)
         {
-            m_Handler.SendMessage(m_Handler.ObtainMessage(RequestCancel, action));
+            m_Handler.SendMessage(m_Handler.ObtainMessage(RequestCancel, Utils.Wrap(action)));
         }
 
         internal void DispatchComplete(BitmapHunter hunter)
@@ -102,7 +103,7 @@ namespace PicassoSharp
 	        m_Handler.SendMessage(m_Handler.ObtainMessage(NetworkStateChange, info));
 	    }
 
-	    void PerformSubmit(Action action)
+	    void PerformSubmit(Action<Bitmap, Drawable> action)
 	    {
             BitmapHunter hunter;
             if (m_Hunters.TryGetValue(action.Key, out hunter))
@@ -121,7 +122,7 @@ namespace PicassoSharp
             m_Hunters.Add(action.Key, hunter);
 	    }
 
-	    void PerformCancel(Action action)
+        void PerformCancel(Action<Bitmap, Drawable> action)
 	    {
 	        string key = action.Key;
 	        BitmapHunter hunter;
@@ -237,14 +238,14 @@ namespace PicassoSharp
 	            {
 	                case RequestSubmit:
 	                {
-	                    var action = (Action) msg.Obj;
-	                    m_Dispatcher.PerformSubmit(action);
+                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
+	                    m_Dispatcher.PerformSubmit(actionWrapper.Value);
 	                }
 	                    break;
 	                case RequestCancel:
 	                {
-	                    var action = (Action) msg.Obj;
-	                    m_Dispatcher.PerformCancel(action);
+                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
+                        m_Dispatcher.PerformCancel(actionWrapper.Value);
 	                }
 	                    break;
 	                case HunterComplete:
