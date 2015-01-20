@@ -3,20 +3,19 @@ using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
-	public class UIImageViewAction : Action
+    public class UIImageViewAction : Action<UIImage, UIImage>
 	{
 		public UIImageViewAction(
             Picasso picasso, 
             UIImageView target, 
-            Request data,
+            Request<UIImage> data,
             bool skipCache,
-            bool noFade,
             string key,
             UIImage errorImage,
             System.Action onSuccessListener,
             System.Action onFailureListener,
             System.Action onFinishListener)
-            : base(picasso, target, data, skipCache, noFade, key, errorImage, onSuccessListener, onFailureListener, onFinishListener)
+            : base(picasso, target, data, skipCache, FadeMode.Never, key, errorImage, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 

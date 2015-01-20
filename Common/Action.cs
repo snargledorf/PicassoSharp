@@ -10,19 +10,19 @@ namespace PicassoSharp
 		private readonly bool m_SkipCache;
 		private readonly string m_Key;
 	    private readonly FadeMode m_FadeMode;
-        private readonly TError m_ErrorDrawable;
+        private readonly TError m_ErrorImage;
 	    private readonly System.Action m_OnSuccessListener;
 	    private readonly System.Action m_OnFailureListener;
 	    private readonly System.Action m_OnFinishListener;
 
-        protected Action(IPicasso<TBitmap, TError> picasso, object target, Request<TBitmap> request, bool skipCache, FadeMode fadeMode, string key, TError errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+        protected Action(IPicasso<TBitmap, TError> picasso, object target, Request<TBitmap> request, bool skipCache, FadeMode fadeMode, string key, TError errorImage, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
         {
             m_Target = target == null ? null : new WeakReference<Object>(target);
 			m_Picasso = picasso;
 			m_Request = request;
 			m_Key = key;
 			m_SkipCache = skipCache;
-			m_ErrorDrawable = errorDrawable;
+			m_ErrorImage = errorImage;
 	        m_FadeMode = fadeMode;
 	        m_OnSuccessListener = onSuccessListener;
 	        m_OnFailureListener = onFailureListener;
@@ -77,11 +77,11 @@ namespace PicassoSharp
             private set;
         }
 
-		public TError ErrorDrawable
+		public TError ErrorImage
 		{
 			get
 			{
-				return m_ErrorDrawable;
+				return m_ErrorImage;
 			}
 		}
 

@@ -69,12 +69,12 @@ namespace PicassoSharp
 
         internal void DispatchSubmit(Action<Bitmap, Drawable> action)
 	    {
-	        m_Handler.SendMessage(m_Handler.ObtainMessage(RequestSubmit, Utils.Wrap(action)));
+            m_Handler.SendMessage(m_Handler.ObtainMessage(RequestSubmit, AndroidUtils.Wrap(action)));
         }
 
 	    internal void DispatchCancel(Action<Bitmap, Drawable> action)
         {
-            m_Handler.SendMessage(m_Handler.ObtainMessage(RequestCancel, Utils.Wrap(action)));
+            m_Handler.SendMessage(m_Handler.ObtainMessage(RequestCancel, AndroidUtils.Wrap(action)));
         }
 
         internal void DispatchComplete(BitmapHunter hunter)
@@ -238,13 +238,13 @@ namespace PicassoSharp
 	            {
 	                case RequestSubmit:
 	                {
-                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
+                        var actionWrapper = (AndroidUtils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
 	                    m_Dispatcher.PerformSubmit(actionWrapper.Value);
 	                }
 	                    break;
 	                case RequestCancel:
 	                {
-                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
+                        var actionWrapper = (AndroidUtils.ObjectWrapper<Action<Bitmap, Drawable>>)msg.Obj;
                         m_Dispatcher.PerformCancel(actionWrapper.Value);
 	                }
 	                    break;

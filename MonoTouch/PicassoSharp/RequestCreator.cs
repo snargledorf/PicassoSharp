@@ -5,7 +5,7 @@ namespace PicassoSharp
 {
 	public sealed class RequestCreator
     {
-        private readonly Request.Builder m_RequestBuilder;
+        private readonly Request<UIImage>.Builder m_RequestBuilder;
         private readonly Picasso m_Picasso;
 
         private bool m_SkipCache;
@@ -25,7 +25,7 @@ namespace PicassoSharp
 		        throw new Exception("Picasso instance shutdown. Cannot submit new requests");
 		    }
 
-			m_RequestBuilder = new Request.Builder(uri);
+            m_RequestBuilder = new Request<UIImage>.Builder(uri);
 			m_Picasso = picasso;
 		}
 
@@ -65,7 +65,7 @@ namespace PicassoSharp
 			return this;
 		}
 
-        public void Into(ITarget target)
+        public void Into(ITarget<UIImage, UIImage, UIImage> target)
         {
 			if (target == null)
 				throw new ArgumentNullException("target");
@@ -77,16 +77,15 @@ namespace PicassoSharp
 
             target.OnPrepareLoad(m_PlaceholderImage);
 
-			Request request = m_RequestBuilder.Build();
+			Request<UIImage> request = m_RequestBuilder.Build();
 			string key = Utils.CreateKey(request);
 
-			Action action = new TargetAction(
+			var action = new TargetAction<UIImage, UIImage, UIImage> (
 				m_Picasso,
 				target, 
 				request,
                 m_SkipCache,
-                m_NoFade,
-				key,
+                key,
 				m_ErrorImage,
                 m_OnSuccessListener,
                 m_OnFailureListener,
@@ -119,15 +118,14 @@ namespace PicassoSharp
             if (m_PlaceholderImage != null)
                 target.Image = m_PlaceholderImage;
 
-            Request request = m_RequestBuilder.Build();
+            Request<UIImage> request = m_RequestBuilder.Build();
             string key = Utils.CreateKey(request);
 
             var action = new UIImageViewAction(
                 m_Picasso,
                 target,
                 request,
-                m_SkipCache,
-                m_NoFade,
+                m_SkipCache, 
                 key,
                 m_ErrorImage,
                 m_OnSuccessListener,

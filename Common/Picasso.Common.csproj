@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Action.cs" />
+    <Compile Include="ErrorRequestHandler.cs" />
     <Compile Include="FadeMode.cs" />
     <Compile Include="FetchAction.cs" />
     <Compile Include="GetAction.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Request.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="TargetAction.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,11 +1,12 @@
 using System;
 using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
-    class NSUrlDownloader : IDownloader
+    class NSUrlDownloader : IDownloader<UIImage>
     {
-        public Response Load(Uri uri, bool localCacheOnly)
+        public Response<UIImage> Load(Uri uri, bool localCacheOnly)
         {
             NSUrl url = NSUrl.FromString(uri.AbsoluteUri);
 
@@ -18,7 +19,7 @@ namespace PicassoSharp
             NSCachedUrlResponse cachedResponse = NSUrlCache.SharedCache.CachedResponseForRequest(request);
             if (cachedResponse != null)
             {
-                return new Response(cachedResponse.Data.AsStream(), true);
+                return new Response<UIImage>(cachedResponse.Data.AsStream(), true, cachedResponse.Data.Length);
             }
             
             NSUrlResponse response;
@@ -33,7 +34,12 @@ namespace PicassoSharp
             cachedResponse = new NSCachedUrlResponse(response, data, null, NSUrlCacheStoragePolicy.Allowed);
             NSUrlCache.SharedCache.StoreCachedResponse(cachedResponse, request);
 
-            return new Response(data.AsStream(), false);
+            return new Response<UIImage>(data.AsStream(), false, data.Length);
+        }
+
+        public void Shutdown()
+        {
+            // NoOp
         }
     }
 }

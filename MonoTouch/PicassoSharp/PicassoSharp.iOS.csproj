@@ -32,23 +32,24 @@
     <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Action.cs" />
     <Compile Include="BitmapHunter.cs" />
     <Compile Include="Dispatcher.cs" />
-    <Compile Include="FileBitmapHunter.cs" />
-    <Compile Include="NetworkBitmapHunter.cs" />
+    <Compile Include="FileRequestHandler.cs" />
+    <Compile Include="NetworkRequestHandler.cs" />
     <Compile Include="NSUrlDownloader.cs" />
+    <Compile Include="RequestHandler.cs" />
     <Compile Include="UIImageViewAction.cs" />
     <Compile Include="IOSUtils.cs" />
-    <Compile Include="ITarget.cs" />
     <Compile Include="Picasso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestCreator.cs" />
-    <Compile Include="TargetAction.cs" />
     <Compile Include="UIImageViewSpinnerTarget.cs" />
-    <Compile Include="ITransformation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\Picasso.Common.csproj">
+      <Project>{14e91a63-d8d4-4f78-be59-87f2c690a6c1}</Project>
+      <Name>Picasso.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

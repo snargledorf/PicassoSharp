@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
 namespace PicassoSharp
@@ -11,43 +10,48 @@ namespace PicassoSharp
         private const int BatchDelay = 200;
 
 	    private readonly ICache<UIImage> m_Cache;
-	    private readonly IDownloader m_Downloader;
+	    private readonly IDownloader<UIImage> m_Downloader;
 
         private readonly Dictionary<String, BitmapHunter> m_Hunters = new Dictionary<String, BitmapHunter>();
         private readonly List<BitmapHunter> m_Batch = new List<BitmapHunter>();
 
         private readonly Object m_Lock = new Object();
 
-	    private bool m_AirplaneMode;
+        private bool m_AirplaneMode;
 
-	    internal Dispatcher(ICache<UIImage> cache, IDownloader downloader)
+        public IDownloader<UIImage> Downloader
+        {
+            get { return m_Downloader; }
+        }
+
+        internal Dispatcher(ICache<UIImage> cache, IDownloader<UIImage> downloader)
 	    {
 	        m_Cache = cache;
 	        m_Downloader = downloader;
             m_AirplaneMode = IOSUtils.IsAirplaneModeOn();
         }
 
-	    internal async void DispatchSubmit(Action action)
+	    internal async void DispatchSubmit(Action<UIImage, UIImage> action)
 	    {
 	        await Task.Factory.StartNew(() =>
 	        {
-	            BitmapHunter hunter;
 	            lock (m_Lock)
 	            {
+	                BitmapHunter hunter;
 	                if (m_Hunters.TryGetValue(action.Key, out hunter))
 	                {
 	                    hunter.Attach(action);
 	                    return;
 	                }
 
-		            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache, m_Downloader);
+		            hunter = BitmapHunter.ForRequest(action.Picasso, action, this, m_Cache);
 		            hunter.Run();
 	                m_Hunters.Add(action.Key, hunter);
 				}
 	        });
 	    }
 
-        internal async void DispatchCancel(Action action)
+        internal async void DispatchCancel(Action<UIImage, UIImage> action)
         {
             await Task.Factory.StartNew(() =>
             {

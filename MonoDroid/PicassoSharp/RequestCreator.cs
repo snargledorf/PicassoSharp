@@ -190,7 +190,6 @@ namespace PicassoSharp
 				target, 
 				request,
                 m_SkipCache,
-                m_FadeMode,
 				key,
 				m_ErrorDrawable, 
                 m_OnSuccessListener, 

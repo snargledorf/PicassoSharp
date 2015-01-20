@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicassoSharp.Android", "MonoDroid\PicassoSharp\PicassoSharp.Android.csproj", "{D8A170EE-4FB6-4D2D-BA05-D1C9BEDD4A0D}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{4F4B6C37-D91B-4208-9CE3-C9774FFE40BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicassoSharp.iOS", "MonoTouch\PicassoSharp\PicassoSharp.iOS.csproj", "{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}"
 EndProject
@@ -21,12 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicExample", "MonoDroid\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicExample", "MonoTouch\Examples\BasicExample\BasicExample.csproj", "{12A1F4DD-D29A-4B80-996E-84876254522D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Picasso.Common", "Common\Picasso.Common.csproj", "{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Shared\Shared.projitems*{e76c20fd-1603-4b21-8cec-b1fe428f3e9e}*SharedItemsImports = 4
-		Shared\Shared.projitems*{d8a170ee-4fb6-4d2d-ba05-d1c9bedd4a0d}*SharedItemsImports = 4
-		Shared\Shared.projitems*{4f4b6c37-d91b-4208-9ce3-c9774ffe40be}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
 		Ad-Hoc|iPhone = Ad-Hoc|iPhone
@@ -166,6 +161,30 @@ Global
 		{12A1F4DD-D29A-4B80-996E-84876254522D}.Release|Mixed Platforms.ActiveCfg = Release|iPhone
 		{12A1F4DD-D29A-4B80-996E-84876254522D}.Release|Mixed Platforms.Build.0 = Release|iPhone
 		{12A1F4DD-D29A-4B80-996E-84876254522D}.Release|Mixed Platforms.Deploy.0 = Release|iPhone
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Ad-Hoc|Mixed Platforms.Build.0 = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.AppStore|Mixed Platforms.Build.0 = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,8 +4,8 @@ namespace PicassoSharp
 {
     public class TargetAction<TBitmap, TPlaceholder, TError> : Action<TBitmap, TError>
 	{
-        public TargetAction(IPicasso<TBitmap, TError> picasso, ITarget<TBitmap, TPlaceholder, TError> target, Request<TBitmap> request, bool skipCache, FadeMode fadeMode, string key, TError errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
-			: base(picasso, target, request, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+        public TargetAction(IPicasso<TBitmap, TError> picasso, ITarget<TBitmap, TPlaceholder, TError> target, Request<TBitmap> request, bool skipCache, string key, TError errorImage, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, request, skipCache, FadeMode.Never, key, errorImage, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		}
 
@@ -25,7 +25,7 @@ namespace PicassoSharp
 		{
             var target = this.Target as ITarget<TBitmap, TPlaceholder, TError>;
 			if (target != null)
-				target.OnImageFailed(ErrorDrawable);
+				target.OnImageFailed(ErrorImage);
 		}
 		#endregion
 	}

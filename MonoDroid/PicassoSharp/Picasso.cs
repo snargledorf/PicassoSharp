@@ -413,7 +413,7 @@ namespace PicassoSharp
 
                 if (m_Downloader == null)
                 {
-                    m_Downloader = Utils.CreateDefaultDownloader(m_Context);
+                    m_Downloader = AndroidUtils.CreateDefaultDownloader(m_Context);
                 }
 
                 if (m_RequestTransformer == null)
@@ -457,7 +457,7 @@ namespace PicassoSharp
                         break;
                     case RequestGced:
                     {
-                        var actionWrapper = (Utils.ObjectWrapper<Action<Bitmap, Drawable>>) msg.Obj;
+                        var actionWrapper = (AndroidUtils.ObjectWrapper<Action<Bitmap, Drawable>>) msg.Obj;
                         actionWrapper.Value.Picasso.CancelExistingRequest(actionWrapper.Value.Target);
                     }
                         break;

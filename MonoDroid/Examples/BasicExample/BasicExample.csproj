@@ -69,6 +69,10 @@
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Picasso.Common.csproj">
+      <Project>{14e91a63-d8d4-4f78-be59-87f2c690a6c1}</Project>
+      <Name>Picasso.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\PicassoSharp\PicassoSharp.Android.csproj">
       <Project>{d8a170ee-4fb6-4d2d-ba05-d1c9bedd4a0d}</Project>
       <Name>PicassoSharp.Android</Name>

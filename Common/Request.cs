@@ -4,9 +4,9 @@ using Exception = System.Exception;
 
 namespace PicassoSharp
 {
-	public class Request<T>
+	public class Request<TBitmap>
     {
-	    protected Request(Uri uri, int resourceId, string stableKey, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation<T>> transformations, float rotationDegrees, float rotationPivotX, float rotationPivotY, bool hasRotationPivot)
+        protected Request(Uri uri, int resourceId, string stableKey, int targetWidth, int targetHeight, bool centerCrop, bool centerInside, List<ITransformation<TBitmap>> transformations, float rotationDegrees, float rotationPivotX, float rotationPivotY, bool hasRotationPivot)
         {
 	        Transformations = transformations;
             RotationDegrees = rotationDegrees;
@@ -49,7 +49,7 @@ namespace PicassoSharp
 	    public float RotationPivotX { get; private set; }
 	    public float RotationPivotY { get; private set; }
 
-        public List<ITransformation<T>> Transformations { get; private set; }
+        public List<ITransformation<TBitmap>> Transformations { get; private set; }
 
 	    public string Name
 	    {
@@ -78,7 +78,7 @@ namespace PicassoSharp
             private int m_ResourceId;
 			private int m_TargetHeight;
 			private int m_TargetWidth;
-	        private List<ITransformation<T>> m_Transformations;
+            private List<ITransformation<TBitmap>> m_Transformations;
 	        private bool m_CenterCrop;
 	        private bool m_CenterInside;
 	        private float m_RotationDegrees;
@@ -103,7 +103,7 @@ namespace PicassoSharp
 	            m_ResourceId = resourceId;
 	        }
 
-	        public Builder(Request<T> request)
+            public Builder(Request<TBitmap> request)
 	        {
 	            m_Uri = request.Uri;
 	            m_ResourceId = request.ResourceId;
@@ -118,7 +118,7 @@ namespace PicassoSharp
                 m_HasRotationPivot = request.HasRotationPivot;
                 if (request.Transformations != null)
                 {
-                    m_Transformations = new List<ITransformation<T>>(request.Transformations);
+                    m_Transformations = new List<ITransformation<TBitmap>>(request.Transformations);
                 }
 	        }
 
@@ -178,13 +178,13 @@ namespace PicassoSharp
                 return this;
 	        }
 
-            public Builder Tranform(ITransformation<T> transformation)
+            public Builder Tranform(ITransformation<TBitmap> transformation)
             {
                 if (transformation == null)
                     throw new ArgumentNullException("transformation");
 
                 if (m_Transformations == null)
-                    m_Transformations = new List<ITransformation<T>>();
+                    m_Transformations = new List<ITransformation<TBitmap>>();
 
                 m_Transformations.Add(transformation);
 
@@ -245,7 +245,7 @@ namespace PicassoSharp
 	            return this;
 	        }
 
-			public Request<T> Build()
+			public Request<TBitmap> Build()
             {
                 if (m_CenterInside && m_CenterCrop)
                 {
@@ -259,7 +259,7 @@ namespace PicassoSharp
                 {
 					throw new NotSupportedException("Center inside requires calling resize.");
                 }
-			    return new Request<T>(
+                return new Request<TBitmap>(
                     m_Uri,
 			        m_ResourceId,
                     m_StableKey,

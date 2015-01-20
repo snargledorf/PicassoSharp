@@ -10,8 +10,8 @@ namespace PicassoSharp
 	{
 	    private readonly Picasso m_Picasso;
 
-		public ImageViewAction(Picasso picasso, ImageView target, Request<Bitmap> request, bool skipCache, FadeMode fadeMode, string key, Drawable errorDrawable, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
-			: base(picasso, target, request, skipCache, fadeMode, key, errorDrawable, onSuccessListener, onFailureListener, onFinishListener)
+		public ImageViewAction(Picasso picasso, ImageView target, Request<Bitmap> request, bool skipCache, FadeMode fadeMode, string key, Drawable errorImage, System.Action onSuccessListener, System.Action onFailureListener, System.Action onFinishListener)
+			: base(picasso, target, request, skipCache, fadeMode, key, errorImage, onSuccessListener, onFailureListener, onFinishListener)
 		{
 		    m_Picasso = picasso;
 		}
@@ -37,9 +37,9 @@ namespace PicassoSharp
             if (target == null || target.Handle == IntPtr.Zero)
                 return;
 
-	        if (ErrorDrawable != null)
+	        if (ErrorImage != null)
 	        {
-	            target.SetImageDrawable(ErrorDrawable);
+	            target.SetImageDrawable(ErrorImage);
 	        }
 	    }
 

@@ -25,18 +25,18 @@ namespace PicassoSharp
         */
         private static readonly object s_DecodeLock = new object();
 
-        private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));  
-        private static readonly ErrorHandler s_ErrorHandler = new ErrorHandler();
+        private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
+        private static readonly ErrorRequestHandler<Bitmap> s_ErrorHandler = new ErrorRequestHandler<Bitmap>();
 
         private readonly IPicasso<Bitmap, Drawable> m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<Bitmap> m_Cache;
-	    private readonly RequestHandler m_RequestHandler;
+        private readonly IRequestHandler<Bitmap> m_RequestHandler;
 	    private readonly bool m_SkipCache;
 		private readonly Request<Bitmap> m_Data;
 		private readonly string m_Key;
 
-        protected BitmapHunter(IPicasso<Bitmap, Drawable> picasso, Action<Bitmap, Drawable> action, Dispatcher dispatcher, ICache<Bitmap> cache, RequestHandler requestHandler)
+        protected BitmapHunter(IPicasso<Bitmap, Drawable> picasso, Action<Bitmap, Drawable> action, Dispatcher dispatcher, ICache<Bitmap> cache, IRequestHandler<Bitmap> requestHandler)
         {
             Action = action;
 			m_Data = action.Request;
@@ -404,19 +404,6 @@ namespace PicassoSharp
 
             return result;
         }
-
-	    private class ErrorHandler : RequestHandler
-	    {
-	        public override bool CanHandleRequest(Request<Bitmap> data)
-	        {
-	            return true;
-	        }
-
-            public override Result<Bitmap> Load(Request<Bitmap> data)
-	        {
-                throw new IllegalStateException("Unrecognized type of request: " + data);
-	        }
-	    }
 	}
 }
 

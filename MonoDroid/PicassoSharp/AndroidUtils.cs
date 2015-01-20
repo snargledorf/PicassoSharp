@@ -2,12 +2,14 @@ using Android;
 using Android.Annotation;
 using Android.Content;
 using Android.App;
+using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Java.IO;
 using Java.Lang;
 using Java.Util.Concurrent;
+using Process = Android.OS.Process;
 
 namespace PicassoSharp
 {
@@ -20,7 +22,7 @@ namespace PicassoSharp
         public static int CalculateMemoryCacheSize(Context context)
         {
             var am = (ActivityManager) context.GetSystemService(Context.ActivityService);
-            bool largeHeap = (context.ApplicationInfo.Flags & Android.Content.PM.ApplicationInfoFlags.LargeHeap) != 0;
+            bool largeHeap = (context.ApplicationInfo.Flags & ApplicationInfoFlags.LargeHeap) != 0;
             int memoryClass = am.MemoryClass;
             if (largeHeap && Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
             {
@@ -69,7 +71,7 @@ namespace PicassoSharp
 
             public override void Run()
             {
-                Android.OS.Process.SetThreadPriority(ThreadPriority.Background);
+                Process.SetThreadPriority(ThreadPriority.Background);
                 base.Run();
             }
         }
@@ -77,7 +79,7 @@ namespace PicassoSharp
         public static bool HasPermission(Context context, string permission)
         {
             return context.CheckCallingOrSelfPermission(Manifest.Permission.AccessNetworkState) ==
-                   Android.Content.PM.Permission.Granted;
+                   Permission.Granted;
         }
 
         [TargetApi(Value = (int) BuildVersionCodes.JellyBeanMr1)]
@@ -133,6 +135,37 @@ namespace PicassoSharp
             catch (IllegalArgumentException) { }
 
             return Math.Max(Math.Min(size, MaxDiskCacheSize), MinDiskCacheSize);
+        }
+
+        public static IDownloader<Bitmap> CreateDefaultDownloader(Context context)
+        {
+            // For now this just returns a UrlConnectionDownloader
+            return new UrlConnectionDownloader(context);
+        }
+
+        public static ObjectWrapper<T> Wrap<T>(T value)
+        {
+            return new ObjectWrapper<T>(value);
+        }
+
+        public static T Unwrap<T>(ObjectWrapper<T> value)
+        {
+            return value.Value;
+        }
+
+        public class ObjectWrapper<T> : Object
+        {
+            private readonly T m_Value;
+
+            public ObjectWrapper(T value)
+            {
+                m_Value = value;
+            }
+
+            public T Value
+            {
+                get { return m_Value; }
+            }
         }
     }
 }

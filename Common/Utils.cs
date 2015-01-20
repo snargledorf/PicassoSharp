@@ -1,12 +1,9 @@
 using System.IO;
 using System.Text;
-using Android.Content;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 
 namespace PicassoSharp
 {
-	internal sealed class Utils
+	public sealed class Utils
 	{
 	    public const string ThreadPrefix = "Picasso-";
         public const string ThreadIdleName = ThreadPrefix + "Idle";
@@ -17,14 +14,14 @@ namespace PicassoSharp
 
 	    private static readonly StringBuilder s_MainThreadKeyBuilder = new StringBuilder();
 
-	    public static string CreateKey(Request<Bitmap> data)
+	    public static string CreateKey<T>(Request<T> data)
 	    {
 	        string key = CreateKey(data, s_MainThreadKeyBuilder);
 	        s_MainThreadKeyBuilder.Length = 0;
             return key;
 		}
 
-	    public static string CreateKey(Request<Bitmap> data, StringBuilder builder)
+        public static string CreateKey<T>(Request<T> data, StringBuilder builder)
 	    {
 	        if (!string.IsNullOrEmpty(data.StableKey))
 	        {
@@ -79,7 +76,7 @@ namespace PicassoSharp
 	            return;
 	        try
 	        {
-	            stream.Close();
+	            stream.Dispose();
 	        }
 	        catch (IOException)
 	        {
@@ -97,37 +94,6 @@ namespace PicassoSharp
                     ms.Write(buffer, 0, bytesRead);
 	            }
 	            return ms.ToArray();
-	        }
-	    }
-
-        public static IDownloader<Bitmap> CreateDefaultDownloader(Context context)
-	    {
-            // For now this just returns a UrlConnectionDownloader
-            return new UrlConnectionDownloader(context);
-	    }
-
-        public static ObjectWrapper<T> Wrap<T>(T value)
-        {
-            return new ObjectWrapper<T>(value);
-        }
-
-        public static T Unwrap<T>(ObjectWrapper<T> value)
-	    {
-	        return value.Value;
-	    }
-
-	    public class ObjectWrapper<T> : Java.Lang.Object
-	    {
-            private readonly T m_Value;
-
-            public ObjectWrapper(T value)
-	        {
-	            m_Value = value;
-	        }
-
-            public T Value
-	        {
-	            get { return m_Value; }
 	        }
 	    }
 	}

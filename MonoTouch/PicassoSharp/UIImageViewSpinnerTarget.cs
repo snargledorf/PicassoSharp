@@ -2,7 +2,7 @@ using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
-    public class UIImageViewSpinnerTarget : ITarget
+    public class UIImageViewSpinnerTarget : ITarget<UIImage, UIImage, UIImage>
     {
         private readonly UIImageView m_ImageView;
         private readonly UIColor m_OriginalBackgroundColor;
@@ -20,7 +20,7 @@ namespace PicassoSharp
             AddSpinner();
         }
 
-        public void OnImageLoaded(UIImage image, Picasso picasso, LoadedFrom loadedFrom)
+        public void OnImageLoaded(UIImage image, IPicasso<UIImage, UIImage> picasso, LoadedFrom loadedFrom)
         {
             ResetBackgroundColor();
             RemoveSpinner();

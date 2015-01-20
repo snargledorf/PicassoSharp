@@ -101,6 +101,10 @@
     <BundleResource Include="Resources\Default-568h%402x.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Picasso.Common.csproj">
+      <Project>{14E91A63-D8D4-4F78-BE59-87F2C690A6C1}</Project>
+      <Name>Picasso.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\PicassoSharp\PicassoSharp.iOS.csproj">
       <Project>{E76C20FD-1603-4B21-8CEC-B1FE428F3E9E}</Project>
       <Name>PicassoSharp.iOS</Name>

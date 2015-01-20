@@ -10,29 +10,40 @@ using MonoTouch.UIKit;
 
 namespace PicassoSharp
 {
-	abstract class BitmapHunter
-	{
+    class BitmapHunter : IBitmapHunter<UIImage, UIImage>
+    {
 	    private static readonly ThreadLocal<StringBuilder> s_NameBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder(Utils.ThreadPrefix));
-        
-	    private readonly Picasso m_Picasso;
+
+        private readonly IPicasso<UIImage, UIImage> m_Picasso;
 		private readonly Dispatcher m_Dispatcher;
 		private readonly ICache<UIImage> m_Cache;
-	    private readonly bool m_SkipCache;
-		private readonly Request m_Data;
+        private readonly IRequestHandler<UIImage> m_RequestHandler;
+        private readonly bool m_SkipCache;
+		private readonly Request<UIImage> m_Data;
 		private readonly string m_Key;
 	    private readonly CancellationTokenSource m_CancellationSource;
-	    private Task m_Task;
-
-        public static BitmapHunter ForRequest(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache, IDownloader downloader)
+        private Task m_Task;
+        private static readonly ErrorRequestHandler<UIImage> s_ErrorHandler = new ErrorRequestHandler<UIImage>();
+        
+        public static BitmapHunter ForRequest(IPicasso<UIImage, UIImage> picasso, Action<UIImage, UIImage> action, Dispatcher dispatcher, ICache<UIImage> cache)
         {
-            if (action.Data.Uri.IsFile)
+            Request<UIImage> request = action.Request;
+            IList<IRequestHandler<UIImage>> requestHandlers = picasso.RequestHandlers;
+
+            // Index-based loop to avoid allocating an iterator.
+            for (int i = 0, count = requestHandlers.Count; i < count; i++)
             {
-                return new FileBitmapHunter(picasso, action, dispatcher, cache);
+                var requestHandler = requestHandlers[i] as RequestHandler;
+                if (requestHandler != null && requestHandler.CanHandleRequest(request))
+                {
+                    return new BitmapHunter(picasso, action, dispatcher, cache, requestHandler);
+                }
             }
-            return new NetworkBitmapHunter(picasso, action, dispatcher, cache, downloader);
+
+            return new BitmapHunter(picasso, action, dispatcher, cache, s_ErrorHandler);
         }
 
-	    private static UIImage TransformResult(Request data, UIImage result)
+	    private static UIImage TransformResult(Request<UIImage> data, UIImage result)
 	    {
 	        CGImage cgImage = result.CGImage;
 	        int inWidth = cgImage.Width;
@@ -109,23 +120,24 @@ namespace PicassoSharp
 	        return result;
 	    }
 
-	    protected BitmapHunter(Picasso picasso, Action action, Dispatcher dispatcher, ICache<UIImage> cache)
+        private BitmapHunter(IPicasso<UIImage, UIImage> picasso, Action<UIImage, UIImage> action, Dispatcher dispatcher, ICache<UIImage> cache, IRequestHandler<UIImage> requestHandler)
         {
             Action = action;
-			m_Data = action.Data;
+			m_Data = action.Request;
 			m_Key = action.Key;
 			m_Picasso = picasso;
             m_Dispatcher = dispatcher;
 			m_Cache = cache;
-	        m_SkipCache = action.SkipCache;
+            m_RequestHandler = requestHandler;
+            m_SkipCache = action.SkipCache;
 	        m_CancellationSource = new CancellationTokenSource();
         }
 
-	    public Action Action { get; private set; }
+        public Action<UIImage, UIImage> Action { get; private set; }
 
-	    public List<Action> Actions { get; private set; }
+        public List<Action<UIImage, UIImage>> Actions { get; private set; }
 
-	    public Picasso Picasso
+        public IPicasso<UIImage, UIImage> Picasso
 		{
 			get
 			{
@@ -149,7 +161,7 @@ namespace PicassoSharp
 			}
 		}
 
-		public Request Data
+		public Request<UIImage> Data
 		{
 			get
 			{
@@ -163,7 +175,7 @@ namespace PicassoSharp
             private set;
         }
 
-		Exception Exception
+		public Exception Exception
 		{
 			get;
 			set;
@@ -175,7 +187,7 @@ namespace PicassoSharp
 			protected set;
 		}
 
-	    public void Attach(Action action)
+        public void Attach(Action<UIImage, UIImage> action)
         {
             if (Action == null)
             {
@@ -185,12 +197,12 @@ namespace PicassoSharp
 
             if (Actions == null)
             {
-                Actions = new List<Action>();
+                Actions = new List<Action<UIImage, UIImage>>();
             }
             Actions.Add(action);
         }
 
-        public void Detach(Action action)
+        public void Detach(Action<UIImage, UIImage> action)
         {
             if (Action == action)
             {
@@ -262,12 +274,10 @@ namespace PicassoSharp
                 }
             }, m_CancellationSource.Token);
         }
-
-	    protected abstract UIImage Decode(Request data);
-
+        
         private UIImage Hunt()
 		{
-            UIImage bitmap;
+            UIImage bitmap = null;
 
 			if (!m_SkipCache)
 			{
@@ -279,7 +289,12 @@ namespace PicassoSharp
 				}
 			}
 
-			bitmap = Decode(Data);
+            Result<UIImage> result = m_RequestHandler.Load(Data);
+            if (result != null)
+            {
+                bitmap = result.Bitmap;
+                LoadedFrom = result.LoadedFrom;
+            }
 
             if (bitmap != null)
             {
@@ -299,7 +314,7 @@ namespace PicassoSharp
 			return bitmap;
 		}
 
-        private void UpdateThreadName(Request data)
+        private void UpdateThreadName(Request<UIImage> data)
         {
             string name = data.Name;
 
@@ -310,13 +325,13 @@ namespace PicassoSharp
 			NSThread.Current.Name = builder.ToString();
         }
 
-        private UIImage ApplyCustomTransformations(List<ITransformation> transformations, UIImage result)
+        private UIImage ApplyCustomTransformations(List<ITransformation<UIImage>> transformations, UIImage result)
         {
             if (result == null) throw new ArgumentNullException("result");
 
             for (int i = 0; i < transformations.Count; i++)
             {
-                ITransformation transformation = transformations[i];
+                ITransformation<UIImage> transformation = transformations[i];
                 UIImage newResult = transformation.Transform(result);
 
                 if (newResult == null)
@@ -327,7 +342,7 @@ namespace PicassoSharp
                         .Append(" returned null after ")
                         .Append(i)
                         .Append(" previous transformation(message).\n\nTransformation list:\n");
-                    foreach (ITransformation t in transformations)
+                    foreach (ITransformation<UIImage> t in transformations)
                     {
                         builder.Append(t.Key).Append('\n');
                     }
@@ -344,10 +359,9 @@ namespace PicassoSharp
                 // TODO Check if result is disposed
                 if (newResult == result)
                 {
-                    // TODO Need a better way to invoke on main thread
-                    new NSObject().InvokeOnMainThread(() =>
+                    m_Picasso.RunOnPicassoThread(() =>
                     {
-                        throw new IllegalStateException("Transformation " +
+                        throw new InvalidOperationException("Transformation " +
                                                         transformation.Key + " return input Bitmap but recycled it.");
                     });
                     return null;
@@ -357,10 +371,9 @@ namespace PicassoSharp
                 // TODO Check if result is NOT disposed
                 if (newResult != result)
                 {
-                    // TODO Need a better way to invoke on main thread
-                    new NSObject().InvokeOnMainThread(() =>
+                    m_Picasso.RunOnPicassoThread(() =>
                     {
-                        throw new IllegalStateException("Transformation "
+                        throw new InvalidOperationException("Transformation "
                                                         + transformation.Key
                                                         + " mutated input Bitmap but failed to recycle the original.");
                     });
